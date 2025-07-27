@@ -55,6 +55,10 @@ class BaseHandler(ABC):
         Returns:
             HandlerResult with download URL and metadata
         """
+        # Check fallback availability once
+        fallback_cmd = self.get_fallback_cmd(purl)
+        fallback_available = bool(fallback_cmd and self.is_package_manager_available())
+        
         # Level 1: Try direct URL construction
         try:
             url = self.build_download_url(purl)
@@ -64,7 +68,8 @@ class BaseHandler(ABC):
                     download_url=url,
                     validated=validate,
                     method="direct",
-                    fallback_command=self.get_fallback_cmd(purl),
+                    fallback_command=fallback_cmd,
+                    fallback_available=fallback_available,
                 )
         except Exception:
             pass
@@ -78,14 +83,14 @@ class BaseHandler(ABC):
                     download_url=url,
                     validated=validate,
                     method="api",
-                    fallback_command=self.get_fallback_cmd(purl),
+                    fallback_command=fallback_cmd,
+                    fallback_available=fallback_available,
                 )
         except Exception:
             pass
         
         # Level 3: Try package manager fallback
-        fallback_cmd = self.get_fallback_cmd(purl)
-        if fallback_cmd and self.is_package_manager_available():
+        if fallback_available:
             try:
                 url = self.execute_fallback_command(purl)
                 if url and (not validate or self.http_client.validate_url(url)):
@@ -95,6 +100,7 @@ class BaseHandler(ABC):
                         validated=validate,
                         method="fallback",
                         fallback_command=fallback_cmd,
+                        fallback_available=fallback_available,
                     )
             except Exception:
                 pass
@@ -108,7 +114,7 @@ class BaseHandler(ABC):
             fallback_command=fallback_cmd,
             error="Failed to resolve download URL",
             status="failed",
-            fallback_available=bool(fallback_cmd and self.is_package_manager_available()),
+            fallback_available=fallback_available,
         )
     
     @abstractmethod

@@ -25,8 +25,12 @@ pip install semantic-copycat-purl2src
 ### Command Line
 
 ```bash
-# Single PURL
+# Single PURL (default text output)
 purl2src "pkg:npm/express@4.17.1"
+# Output: pkg:npm/express@4.17.1 -> https://registry.npmjs.org/express/-/express-4.17.1.tgz
+
+# JSON output format
+purl2src "pkg:npm/express@4.17.1" --format json
 
 # With validation
 purl2src "pkg:pypi/requests@2.28.0" --validate
@@ -34,8 +38,8 @@ purl2src "pkg:pypi/requests@2.28.0" --validate
 # Batch processing from file
 purl2src -f purls.txt --output results.json
 
-# Different output format
-purl2src "pkg:cargo/serde@1.0.0" --format json
+# Batch processing with JSON to stdout
+purl2src -f purls.txt --format json
 ```
 
 ### Python API

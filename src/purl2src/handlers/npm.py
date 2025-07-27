@@ -76,8 +76,8 @@ class NpmHandler(BaseHandler):
         else:
             package_spec = f"{purl.name}@{purl.version}"
         
-        # Properly quote the package spec
-        return f"npm view {quote(package_spec)} dist.tarball"
+        # NPM doesn't need URL encoding, just return the command directly
+        return f"npm view {package_spec} dist.tarball"
     
     def get_package_manager_cmd(self) -> List[str]:
         """NPM command names."""
