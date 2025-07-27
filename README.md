@@ -90,25 +90,6 @@ purl2src "pkg:maven/org.apache.xmlgraphics/batik-anim@1.9.1?classifier=sources"
 purl2src "pkg:generic/mypackage@1.0.0?download_url=https://example.com/pkg.tar.gz&checksum=sha256:abcd1234..."
 ```
 
-## Development
-
-```bash
-# Install in development mode
-pip install -e .
-
-# Install development dependencies
-pip install -r requirements-dev.txt
-
-# Run tests
-pytest
-
-# Format code
-black src/ tests/
-
-# Type checking
-mypy src/
-```
-
 ## License
 
-MIT License - see LICENSE file for details
+Apache License 2.0 - see LICENSE file for details

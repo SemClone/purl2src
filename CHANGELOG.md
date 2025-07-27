@@ -27,9 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI tool `purl2src` with:
   - Single PURL resolution
   - Batch processing from files
-  - JSON and text output formats
+  - JSON, CSV, and text output formats
   - Progress bar for batch operations
   - URL validation options
+  - Automatic output format detection from file extension
 - Comprehensive PURL parsing with support for:
   - Namespaces (e.g., Maven group IDs, npm scopes)
   - Versions with special characters
@@ -50,11 +51,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Maven artifact naming for Apache Commons IO versions
 - fallback_available flag to correctly reflect package manager installation status
 - urllib3 OpenSSL warning on macOS by constraining to v1.x and adding warning suppression
+- NPM fallback command encoding issue - removed URL encoding for npm commands
 
 ### Security
 - All HTTP requests use HTTPS where available
 - No credentials or sensitive data are stored or logged
 - Secure command execution with proper escaping
+
+### Changed
+- License from MIT to Apache-2.0
 
 ### Known Issues
 - Maven fallback command doesn't directly return download URLs (downloads to local repository)
