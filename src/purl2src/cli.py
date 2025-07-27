@@ -80,29 +80,33 @@ def main(
     results = []
     errors = 0
     
-    with click.progressbar(
-        purls,
-        label="Processing PURLs",
-        show_pos=True,
-        disable=len(purls) == 1 or not verbose,
-    ) as purl_list:
-        for purl_str in purl_list:
-            try:
-                result = get_download_url(purl_str, validate=validate)
-                results.append(result.to_dict())
-                
-                if result.status == "failed":
-                    errors += 1
-                    
-            except Exception as e:
-                result_dict = {
-                    "purl": purl_str,
-                    "download_url": None,
-                    "status": "failed",
-                    "error": str(e),
-                }
-                results.append(result_dict)
+    # Only show progress bar for multiple PURLs in verbose mode
+    if len(purls) > 1 and verbose:
+        purl_list = click.progressbar(
+            purls,
+            label="Processing PURLs",
+            show_pos=True,
+        )
+    else:
+        purl_list = purls
+    
+    for purl_str in purl_list:
+        try:
+            result = get_download_url(purl_str, validate=validate)
+            results.append(result.to_dict())
+            
+            if result.status == "failed":
                 errors += 1
+                
+        except Exception as e:
+            result_dict = {
+                "purl": purl_str,
+                "download_url": None,
+                "status": "failed",
+                "error": str(e),
+            }
+            results.append(result_dict)
+            errors += 1
     
     # Format and output results
     if format == "json":

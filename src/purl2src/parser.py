@@ -67,7 +67,8 @@ def parse_purl(purl_string: str) -> Purl:
         raise PurlParseError("Empty PURL string")
     
     # Basic PURL regex pattern
-    pattern = r"^pkg:([^/]+)/([^@#?]+)(@[^#?]+)?(\?[^#]+)?(#.+)?$"
+    # Handle @ in scoped packages by using non-greedy match
+    pattern = r"^pkg:([^/]+)/(.+?)(@[^#?]+)?(\?[^#]+)?(#.+)?$"
     match = re.match(pattern, purl_string)
     
     if not match:

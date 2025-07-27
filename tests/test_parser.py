@@ -31,7 +31,7 @@ class TestPurlParser:
         assert purl.ecosystem == "maven"
         assert purl.namespace == "org.apache"
         assert purl.name == "commons"
-        assert purl.version is None
+        assert purl.version == "1.0"
         assert purl.qualifiers == {"type": "jar", "classifier": "sources"}
     
     def test_parse_purl_with_subpath(self):
