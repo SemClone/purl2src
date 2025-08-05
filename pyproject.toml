@@ -12,7 +12,7 @@ license = {text = "Apache-2.0"}
 authors = [
     {name = "Oscar Valenzuela B.", email = "oscar.valenzuela.b@gmail.com"},
 ]
-keywords = ["purl", "package-url", "package-manager", "source-code", "download"]
+keywords = ["purl", "package-url", "package-manager", "source-code", "license-compliance", "ai-detection", "semantic-analysis", "semantic-copycat", "code-copycat"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
