@@ -1,4 +1,4 @@
-# semantic-copycat-purl2src
+# PURL2SRC - Package URL (PURL) to Source
 
 Translate Package URLs (PURLs) into validated download URLs for source code artifacts.
 
