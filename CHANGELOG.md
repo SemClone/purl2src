@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2025-01-06
+
+### Fixed
+- Conda handler now correctly resolves download URLs for packages from the 'main' channel
+  - Main/defaults channels now use repo.anaconda.com/pkgs/main/ URL structure
+  - Community channels (conda-forge, bioconda) continue using anaconda.org URL structure
+- Resolved issue where main channel packages were failing with "Failed to resolve download URL" error
+
 ## [0.1.1] - 2025-01-27
 
 ### Changed
