@@ -2,6 +2,7 @@
 
 import re
 from typing import Optional, List
+from urllib.parse import urlparse
 
 from ..parser import Purl
 from .base import BaseHandler
@@ -9,7 +10,24 @@ from .base import BaseHandler
 
 class RubyGemsHandler(BaseHandler):
     """Handler for Ruby gems."""
-    
+
+    def _is_github_url(self, url: str) -> bool:
+        """
+        Safely check if a URL is from GitHub by parsing the hostname and scheme.
+
+        Args:
+            url: The URL to check
+
+        Returns:
+            True if the URL is from github.com with http/https scheme, False otherwise
+        """
+        try:
+            parsed = urlparse(url)
+            return (parsed.hostname == "github.com" and
+                   parsed.scheme in ("http", "https"))
+        except Exception:
+            return False
+
     def build_download_url(self, purl: Purl) -> Optional[str]:
         """
         Build RubyGems download URL.
@@ -38,14 +56,14 @@ class RubyGemsHandler(BaseHandler):
             # Source code URI if it's GitHub
             if "source_code_uri" in data:
                 uri = data["source_code_uri"]
-                if "github.com" in uri and not uri.endswith(".git"):
+                if self._is_github_url(uri) and not uri.endswith(".git"):
                     return f"{uri}.git"
                 return uri
             
             # Homepage URI if it's GitHub
             if "homepage_uri" in data:
                 uri = data["homepage_uri"]
-                if "github.com" in uri and not uri.endswith(".git"):
+                if self._is_github_url(uri) and not uri.endswith(".git"):
                     return f"{uri}.git"
             
             return None
