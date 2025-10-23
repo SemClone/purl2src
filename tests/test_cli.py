@@ -281,9 +281,7 @@ class TestCLI:
 
         try:
             # Test without verbose (progress bar not used)
-            result = self.runner.invoke(
-                main, ["--file", temp_file, "--format", "plain"]
-            )
+            result = self.runner.invoke(main, ["--file", temp_file, "--format", "plain"])
 
             assert result.exit_code == 1  # Should exit with error
             assert (
