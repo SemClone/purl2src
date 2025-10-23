@@ -72,6 +72,7 @@ def main(
 
     # Only show progress bar for multiple PURLs in verbose mode
     from typing import Union, Iterator
+
     purl_iter: Union[List[str], Iterator[str]]
     if len(purls) > 1 and verbose:
         purl_iter = click.progressbar(

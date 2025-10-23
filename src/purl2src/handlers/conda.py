@@ -66,6 +66,7 @@ class CondaHandler(BaseHandler):
         """Parse conda search output."""
         # Look for "url" line with various formatting
         import re
+
         for line in output.split("\n"):
             # Look for pattern: url (spaces) : (spaces) http...
             match = re.search(r"url\s*:\s*(https?://\S+)", line, re.IGNORECASE)
