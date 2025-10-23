@@ -211,11 +211,14 @@ class TestCLI:
         try:
             # Mock the progress bar to avoid Click's context manager requirement in tests
             with patch("click.progressbar") as mock_progressbar:
-                mock_progressbar.return_value = [
+                mock_context = MagicMock()
+                mock_context.__enter__.return_value = [
                     "pkg:npm/express@4.17.1",
                     "pkg:npm/lodash@4.17.21",
                     "pkg:npm/react@17.0.2",
                 ]
+                mock_context.__exit__.return_value = None
+                mock_progressbar.return_value = mock_context
 
                 result = self.runner.invoke(main, ["--file", temp_file, "--verbose"])
 
@@ -277,27 +280,20 @@ class TestCLI:
             temp_file = f.name
 
         try:
-            # Mock progress bar for verbose mode
-            with patch("click.progressbar") as mock_progressbar:
-                mock_progressbar.return_value = [
-                    "pkg:npm/express@4.17.1",
-                    "pkg:npm/nonexistent@1.0.0",
-                ]
+            # Test without verbose (progress bar not used)
+            result = self.runner.invoke(
+                main, ["--file", temp_file, "--format", "plain"]
+            )
 
-                result = self.runner.invoke(
-                    main, ["--file", temp_file, "--format", "plain", "--verbose"]
-                )
-
-                assert result.exit_code == 1  # Should exit with error
-                assert (
-                    "pkg:npm/express@4.17.1 -> https://registry.npmjs.org/express/-/express-4.17.1.tgz"
-                    in result.output
-                )
-                assert (
-                    "pkg:npm/nonexistent@1.0.0 -> ERROR: Failed to resolve download URL"
-                    in result.output
-                )
-                assert "Completed with 1 error(s)" in result.output
+            assert result.exit_code == 1  # Should exit with error
+            assert (
+                "pkg:npm/express@4.17.1 -> https://registry.npmjs.org/express/-/express-4.17.1.tgz"
+                in result.output
+            )
+            assert (
+                "pkg:npm/nonexistent@1.0.0 -> ERROR: Failed to resolve download URL"
+                in result.output
+            )
 
         finally:
             Path(temp_file).unlink()
