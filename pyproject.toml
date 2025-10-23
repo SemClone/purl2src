@@ -77,6 +77,10 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --cov=purl2src --cov-report=term-missing"
+markers = [
+    "e2e: End-to-end tests that hit real package registries (deselect with '-m \"not e2e\"')",
+    "slow: Tests that take a long time to run",
+]
 
 [tool.coverage.run]
 source = ["src/purl2src"]

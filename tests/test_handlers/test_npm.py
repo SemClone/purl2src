@@ -64,7 +64,7 @@ class TestNpmHandler:
         """Test getting fallback command."""
         purl = Purl(ecosystem="npm", name="express", version="4.17.1")
         cmd = self.handler.get_fallback_cmd(purl)
-        assert cmd == "npm view express%404.17.1 dist.tarball"
+        assert cmd == "npm view express@4.17.1 dist.tarball"
     
     def test_get_fallback_cmd_scoped(self):
         """Test getting fallback command for scoped package."""
@@ -75,7 +75,7 @@ class TestNpmHandler:
             version="12.0.0"
         )
         cmd = self.handler.get_fallback_cmd(purl)
-        assert cmd == "npm view %40angular/core%4012.0.0 dist.tarball"
+        assert cmd == "npm view @angular/core@12.0.0 dist.tarball"
     
     def test_is_package_manager_available(self):
         """Test checking if package manager is available."""
