@@ -1,6 +1,7 @@
 """Simple E2E tests to verify package resolution works for all ecosystems."""
 
 import pytest
+from urllib.parse import urlparse
 from purl2src import get_download_url
 
 
@@ -22,8 +23,9 @@ class TestE2E:
         """Verify PyPI package resolves correctly."""
         result = get_download_url("pkg:pypi/requests@2.31.0")
         assert result.download_url is not None
-        # PyPI can use either domain
-        assert "pypi.python.org" in result.download_url or "pythonhosted.org" in result.download_url
+        # PyPI can use either domain - check actual hostname
+        hostname = urlparse(result.download_url).hostname
+        assert hostname in ("pypi.python.org", "files.pythonhosted.org")
         assert "requests-2.31.0" in result.download_url
 
     def test_rubygems_package(self):
