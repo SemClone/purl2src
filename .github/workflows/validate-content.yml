@@ -1,0 +1,34 @@
+name: Validate Content
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+  push:
+    branches: [main, master]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Validate PR description
+      if: github.event_name == 'pull_request'
+      run: |
+        PR_BODY="${{ github.event.pull_request.body }}"
+        ./.githooks/validate-content.sh pr "$PR_BODY"
+
+    - name: Validate all files
+      run: |
+        ./.githooks/validate-content.sh directory .
+
+    - name: Check commit messages
+      run: |
+        # Check last 10 commits
+        git log --oneline -10 | while read -r commit; do
+          commit_msg=$(git log -1 --pretty=%B $(echo $commit | awk '{print $1}'))
+          echo "Checking commit: $(echo $commit | awk '{print $1}')"
+          ./.githooks/validate-content.sh content "$commit_msg" "Commit message"
+        done
