@@ -69,7 +69,8 @@ class RubyGemsHandler(BaseHandler):
                 if self._is_github_url(uri):
                     if not uri.endswith(".git"):
                         return f"{uri}.git"
-                    return uri
+                    homepage_url: Optional[str] = uri
+                    return homepage_url
 
             return None
 
