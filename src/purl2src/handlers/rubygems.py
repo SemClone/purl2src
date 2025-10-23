@@ -56,17 +56,20 @@ class RubyGemsHandler(BaseHandler):
             # Source code URI if it's GitHub
             if "source_code_uri" in data:
                 uri = data["source_code_uri"]
-                if self._is_github_url(uri) and not uri.endswith(".git"):
-                    git_url: Optional[str] = f"{uri}.git"
-                    return git_url
-                source_uri: Optional[str] = uri
-                return source_uri
+                if self._is_github_url(uri):
+                    if not uri.endswith(".git"):
+                        git_url: Optional[str] = f"{uri}.git"
+                        return git_url
+                    source_uri: Optional[str] = uri
+                    return source_uri
 
             # Homepage URI if it's GitHub
             if "homepage_uri" in data:
                 uri = data["homepage_uri"]
-                if self._is_github_url(uri) and not uri.endswith(".git"):
-                    return f"{uri}.git"
+                if self._is_github_url(uri):
+                    if not uri.endswith(".git"):
+                        return f"{uri}.git"
+                    return uri
 
             return None
 

@@ -71,35 +71,43 @@ def main(
     errors = 0
 
     # Only show progress bar for multiple PURLs in verbose mode
-    from typing import Union, Iterator
-
-    purl_iter: Union[List[str], Iterator[str]]
     if len(purls) > 1 and verbose:
-        purl_iter = click.progressbar(
-            purls,
-            label="Processing PURLs",
-            show_pos=True,
-        )
+        with click.progressbar(purls, label="Processing PURLs", show_pos=True) as purl_iter:
+            for purl_str in purl_iter:
+                try:
+                    result = get_download_url(purl_str, validate=validate)
+                    results.append(result.to_dict())
+
+                    if result.status == "failed":
+                        errors += 1
+
+                except Exception as e:
+                    result_dict = {
+                        "purl": purl_str,
+                        "download_url": None,
+                        "status": "failed",
+                        "error": str(e),
+                    }
+                    results.append(result_dict)
+                    errors += 1
     else:
-        purl_iter = purls
+        for purl_str in purls:
+            try:
+                result = get_download_url(purl_str, validate=validate)
+                results.append(result.to_dict())
 
-    for purl_str in purl_iter:
-        try:
-            result = get_download_url(purl_str, validate=validate)
-            results.append(result.to_dict())
+                if result.status == "failed":
+                    errors += 1
 
-            if result.status == "failed":
+            except Exception as e:
+                result_dict = {
+                    "purl": purl_str,
+                    "download_url": None,
+                    "status": "failed",
+                    "error": str(e),
+                }
+                results.append(result_dict)
                 errors += 1
-
-        except Exception as e:
-            result_dict = {
-                "purl": purl_str,
-                "download_url": None,
-                "status": "failed",
-                "error": str(e),
-            }
-            results.append(result_dict)
-            errors += 1
 
     # Format and output results
     if format == "json":
