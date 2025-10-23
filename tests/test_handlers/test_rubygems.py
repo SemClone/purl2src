@@ -83,9 +83,7 @@ class TestRubyGemsHandler(unittest.TestCase):
         """Test API response with safe GitHub homepage_uri."""
         purl = Purl(ecosystem="gem", name="rails", version="7.0.0")
 
-        self.http_client.get_json.return_value = {
-            "homepage_uri": "https://github.com/rails/rails"
-        }
+        self.http_client.get_json.return_value = {"homepage_uri": "https://github.com/rails/rails"}
 
         url = self.handler.get_download_url_from_api(purl)
         assert url == "https://github.com/rails/rails.git"

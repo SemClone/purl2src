@@ -23,7 +23,7 @@ class TestGenericHandler:
             ecosystem="generic",
             name="mypackage",
             version="1.0.0",
-            qualifiers={"download_url": "https://example.com/package.tar.gz"}
+            qualifiers={"download_url": "https://example.com/package.tar.gz"},
         )
         url = self.handler.build_download_url(purl)
         assert url == "https://example.com/package.tar.gz"
@@ -34,7 +34,7 @@ class TestGenericHandler:
             ecosystem="generic",
             name="mypackage",
             version="1.0.0",
-            qualifiers={"vcs_url": "https://github.com/user/repo.git"}
+            qualifiers={"vcs_url": "https://github.com/user/repo.git"},
         )
         url = self.handler.build_download_url(purl)
         assert url == "https://github.com/user/repo.git"
@@ -45,7 +45,7 @@ class TestGenericHandler:
             ecosystem="generic",
             name="mypackage",
             version="1.0.0",
-            qualifiers={"vcs_url": "git+https://github.com/user/repo.git"}
+            qualifiers={"vcs_url": "git+https://github.com/user/repo.git"},
         )
         url = self.handler.build_download_url(purl)
         assert url == "https://github.com/user/repo.git"
@@ -56,12 +56,12 @@ class TestGenericHandler:
             ecosystem="generic",
             name="mypackage",
             version="1.0.0",
-            qualifiers={"vcs_url": "https://github.com/user/repo.git@abc123def456"}
+            qualifiers={"vcs_url": "https://github.com/user/repo.git@abc123def456"},
         )
         url = self.handler.build_download_url(purl)
         assert url == "https://github.com/user/repo.git"
         # Check that commit is stored
-        assert hasattr(self.handler, '_commit')
+        assert hasattr(self.handler, "_commit")
         assert self.handler._commit == "abc123def456"
 
     def test_build_download_url_with_vcs_url_git_prefix_commit(self):
@@ -70,11 +70,11 @@ class TestGenericHandler:
             ecosystem="generic",
             name="mypackage",
             version="1.0.0",
-            qualifiers={"vcs_url": "git+https://github.com/user/repo.git@abc123def456"}
+            qualifiers={"vcs_url": "git+https://github.com/user/repo.git@abc123def456"},
         )
         url = self.handler.build_download_url(purl)
         assert url == "https://github.com/user/repo.git"
-        assert hasattr(self.handler, '_commit')
+        assert hasattr(self.handler, "_commit")
         assert self.handler._commit == "abc123def456"
 
     def test_build_download_url_no_qualifiers(self):
@@ -91,8 +91,8 @@ class TestGenericHandler:
             version="1.0.0",
             qualifiers={
                 "download_url": "https://example.com/package.tar.gz",
-                "vcs_url": "https://github.com/user/repo.git"
-            }
+                "vcs_url": "https://github.com/user/repo.git",
+            },
         )
         url = self.handler.build_download_url(purl)
         assert url == "https://example.com/package.tar.gz"
@@ -108,7 +108,7 @@ class TestGenericHandler:
         purl = Purl(
             ecosystem="generic",
             name="mypackage",
-            qualifiers={"vcs_url": "https://github.com/user/repo.git"}
+            qualifiers={"vcs_url": "https://github.com/user/repo.git"},
         )
         cmd = self.handler.get_fallback_cmd(purl)
         assert cmd == "git clone https://github.com/user/repo.git"
@@ -118,7 +118,7 @@ class TestGenericHandler:
         purl = Purl(
             ecosystem="generic",
             name="mypackage",
-            qualifiers={"vcs_url": "git+https://github.com/user/repo.git"}
+            qualifiers={"vcs_url": "git+https://github.com/user/repo.git"},
         )
         cmd = self.handler.get_fallback_cmd(purl)
         assert cmd == "git clone https://github.com/user/repo.git"
@@ -128,7 +128,7 @@ class TestGenericHandler:
         purl = Purl(
             ecosystem="generic",
             name="mypackage",
-            qualifiers={"vcs_url": "https://github.com/user/repo.git@abc123def456"}
+            qualifiers={"vcs_url": "https://github.com/user/repo.git@abc123def456"},
         )
         cmd = self.handler.get_fallback_cmd(purl)
         assert cmd == "git clone https://github.com/user/repo.git && git checkout abc123def456"
@@ -138,7 +138,7 @@ class TestGenericHandler:
         purl = Purl(
             ecosystem="generic",
             name="mypackage",
-            qualifiers={"vcs_url": "git+https://github.com/user/repo.git@abc123def456"}
+            qualifiers={"vcs_url": "git+https://github.com/user/repo.git@abc123def456"},
         )
         cmd = self.handler.get_fallback_cmd(purl)
         assert cmd == "git clone https://github.com/user/repo.git && git checkout abc123def456"
@@ -183,8 +183,8 @@ class TestGenericHandler:
             version="1.0.0",
             qualifiers={
                 "download_url": "https://example.com/package.tar.gz",
-                "checksum": "sha256:abc123def456"
-            }
+                "checksum": "sha256:abc123def456",
+            },
         )
 
         # Mock validation success
@@ -201,7 +201,7 @@ class TestGenericHandler:
         self.http_client.download_and_verify.assert_called_once_with(
             "https://example.com/package.tar.gz",
             expected_checksum="abc123def456",
-            algorithm="sha256"
+            algorithm="sha256",
         )
 
     def test_get_download_url_with_checksum_validation_default_sha256(self):
@@ -212,8 +212,8 @@ class TestGenericHandler:
             version="1.0.0",
             qualifiers={
                 "download_url": "https://example.com/package.tar.gz",
-                "checksum": "abc123def456"
-            }
+                "checksum": "abc123def456",
+            },
         )
 
         # Mock validation success
@@ -230,7 +230,7 @@ class TestGenericHandler:
         self.http_client.download_and_verify.assert_called_once_with(
             "https://example.com/package.tar.gz",
             expected_checksum="abc123def456",
-            algorithm="sha256"
+            algorithm="sha256",
         )
 
     def test_get_download_url_with_checksum_validation_failure(self):
@@ -241,8 +241,8 @@ class TestGenericHandler:
             version="1.0.0",
             qualifiers={
                 "download_url": "https://example.com/package.tar.gz",
-                "checksum": "sha256:abc123def456"
-            }
+                "checksum": "sha256:abc123def456",
+            },
         )
 
         # Mock validation success but checksum failure
@@ -262,7 +262,7 @@ class TestGenericHandler:
             ecosystem="generic",
             name="mypackage",
             version="1.0.0",
-            qualifiers={"download_url": "https://example.com/package.tar.gz"}
+            qualifiers={"download_url": "https://example.com/package.tar.gz"},
         )
 
         # Mock validation success
@@ -285,8 +285,8 @@ class TestGenericHandler:
             version="1.0.0",
             qualifiers={
                 "download_url": "https://example.com/package.tar.gz",
-                "checksum": "sha256:abc123def456"
-            }
+                "checksum": "sha256:abc123def456",
+            },
         )
 
         result = self.handler.get_download_url(purl, validate=False)

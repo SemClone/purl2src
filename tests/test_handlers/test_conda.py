@@ -23,14 +23,12 @@ class TestCondaHandler:
             ecosystem="conda",
             name="numpy",
             version="1.21.0",
-            qualifiers={
-                "build": "py39h89e85a6_0",
-                "channel": "main",
-                "subdir": "linux-64"
-            }
+            qualifiers={"build": "py39h89e85a6_0", "channel": "main", "subdir": "linux-64"},
         )
         url = self.handler.build_download_url(purl)
-        expected = "https://repo.anaconda.com/pkgs/main/linux-64/numpy-1.21.0-py39h89e85a6_0.tar.bz2"
+        expected = (
+            "https://repo.anaconda.com/pkgs/main/linux-64/numpy-1.21.0-py39h89e85a6_0.tar.bz2"
+        )
         assert url == expected
 
     def test_build_download_url_defaults_channel(self):
@@ -39,11 +37,7 @@ class TestCondaHandler:
             ecosystem="conda",
             name="scipy",
             version="1.7.0",
-            qualifiers={
-                "build": "py39h89e85a6_0",
-                "channel": "defaults",
-                "subdir": "linux-64"
-            }
+            qualifiers={"build": "py39h89e85a6_0", "channel": "defaults", "subdir": "linux-64"},
         )
         url = self.handler.build_download_url(purl)
         expected = "https://repo.anaconda.com/pkgs/main/linux-64/scipy-1.7.0-py39h89e85a6_0.tar.bz2"
@@ -55,11 +49,7 @@ class TestCondaHandler:
             ecosystem="conda",
             name="matplotlib",
             version="3.4.2",
-            qualifiers={
-                "build": "py39h89e85a6_0",
-                "channel": "conda-forge",
-                "subdir": "linux-64"
-            }
+            qualifiers={"build": "py39h89e85a6_0", "channel": "conda-forge", "subdir": "linux-64"},
         )
         url = self.handler.build_download_url(purl)
         expected = "https://anaconda.org/conda-forge/matplotlib/3.4.2/download/linux-64/matplotlib-3.4.2-py39h89e85a6_0.tar.bz2"
@@ -71,11 +61,7 @@ class TestCondaHandler:
             ecosystem="conda",
             name="samtools",
             version="1.13",
-            qualifiers={
-                "build": "h8c37831_0",
-                "channel": "bioconda",
-                "subdir": "linux-64"
-            }
+            qualifiers={"build": "h8c37831_0", "channel": "bioconda", "subdir": "linux-64"},
         )
         url = self.handler.build_download_url(purl)
         expected = "https://anaconda.org/bioconda/samtools/1.13/download/linux-64/samtools-1.13-h8c37831_0.tar.bz2"
@@ -86,11 +72,7 @@ class TestCondaHandler:
         purl = Purl(
             ecosystem="conda",
             name="numpy",
-            qualifiers={
-                "build": "py39h89e85a6_0",
-                "channel": "main",
-                "subdir": "linux-64"
-            }
+            qualifiers={"build": "py39h89e85a6_0", "channel": "main", "subdir": "linux-64"},
         )
         url = self.handler.build_download_url(purl)
         assert url is None
@@ -101,10 +83,7 @@ class TestCondaHandler:
             ecosystem="conda",
             name="numpy",
             version="1.21.0",
-            qualifiers={
-                "channel": "main",
-                "subdir": "linux-64"
-            }
+            qualifiers={"channel": "main", "subdir": "linux-64"},
         )
         with pytest.raises(HandlerError, match="Missing required qualifier: build"):
             self.handler.build_download_url(purl)
@@ -115,10 +94,7 @@ class TestCondaHandler:
             ecosystem="conda",
             name="numpy",
             version="1.21.0",
-            qualifiers={
-                "build": "py39h89e85a6_0",
-                "subdir": "linux-64"
-            }
+            qualifiers={"build": "py39h89e85a6_0", "subdir": "linux-64"},
         )
         with pytest.raises(HandlerError, match="Missing required qualifier: channel"):
             self.handler.build_download_url(purl)
@@ -129,10 +105,7 @@ class TestCondaHandler:
             ecosystem="conda",
             name="numpy",
             version="1.21.0",
-            qualifiers={
-                "build": "py39h89e85a6_0",
-                "channel": "main"
-            }
+            qualifiers={"build": "py39h89e85a6_0", "channel": "main"},
         )
         with pytest.raises(HandlerError, match="Missing required qualifier: subdir"):
             self.handler.build_download_url(purl)
@@ -146,10 +119,7 @@ class TestCondaHandler:
     def test_get_fallback_cmd_with_version(self):
         """Test getting fallback command with version."""
         purl = Purl(
-            ecosystem="conda",
-            name="numpy",
-            version="1.21.0",
-            qualifiers={"channel": "conda-forge"}
+            ecosystem="conda", name="numpy", version="1.21.0", qualifiers={"channel": "conda-forge"}
         )
         cmd = self.handler.get_fallback_cmd(purl)
         assert cmd == "conda search -c conda-forge numpy=1.21.0 --info"
@@ -208,7 +178,10 @@ dependencies:
   - python >=3.9,<3.10.0a0"""
 
         url = self.handler.parse_fallback_output(output)
-        assert url == "https://repo.anaconda.com/pkgs/main/linux-64/numpy-1.21.0-py39h89e85a6_0.tar.bz2"
+        assert (
+            url
+            == "https://repo.anaconda.com/pkgs/main/linux-64/numpy-1.21.0-py39h89e85a6_0.tar.bz2"
+        )
 
     def test_parse_fallback_output_no_url(self):
         """Test parsing conda search output without URL."""

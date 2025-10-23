@@ -24,13 +24,14 @@ class TestURLCache:
         self.test_data = {
             "download_url": "https://registry.npmjs.org/express/-/express-4.17.1.tgz",
             "method": "direct",
-            "validated": True
+            "validated": True,
         }
 
     def teardown_method(self):
         """Clean up after tests."""
         # Clean up temp directory
         import shutil
+
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def test_cache_initialization_default_dir(self):
@@ -100,7 +101,7 @@ class TestURLCache:
         assert cache_path.exists()
 
         # Read file directly
-        with open(cache_path, 'r') as f:
+        with open(cache_path, "r") as f:
             file_data = json.load(f)
 
         assert file_data["data"] == self.test_data
@@ -154,11 +155,7 @@ class TestURLCache:
     def test_clear_cache(self):
         """Test clearing all cache entries."""
         # Set multiple entries
-        purls = [
-            "pkg:npm/express@4.17.1",
-            "pkg:npm/lodash@4.17.21",
-            "pkg:pypi/requests@2.28.0"
-        ]
+        purls = ["pkg:npm/express@4.17.1", "pkg:npm/lodash@4.17.21", "pkg:pypi/requests@2.28.0"]
 
         for purl in purls:
             self.cache.set(purl, {"url": f"https://example.com/{purl}"})
@@ -183,7 +180,7 @@ class TestURLCache:
 
         # Create invalid JSON file
         cache_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(cache_path, 'w') as f:
+        with open(cache_path, "w") as f:
             f.write("invalid json content")
 
         # Should return None and remove invalid file
@@ -196,7 +193,7 @@ class TestURLCache:
 
         # Create file without timestamp
         cache_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(cache_path, 'w') as f:
+        with open(cache_path, "w") as f:
             json.dump({"data": self.test_data}, f)  # Missing timestamp
 
         # Should return None and remove invalid file
@@ -229,7 +226,7 @@ class TestURLCache:
             "pkg:npm/@angular/core@12.0.0",
             "pkg:maven/org.apache.commons/commons-lang3@3.12.0",
             "pkg:golang/github.com/user/repo@v1.0.0",
-            "pkg:pypi/package-with-dashes@1.0.0"
+            "pkg:pypi/package-with-dashes@1.0.0",
         ]
 
         for purl in special_purls:
@@ -244,9 +241,9 @@ class TestURLCache:
             "metadata": {
                 "size": 1024000,
                 "dependencies": ["dep1", "dep2", "dep3"] * 100,
-                "description": "A" * 1000
+                "description": "A" * 1000,
             },
-            "versions": {f"1.{i}.0": f"url-{i}" for i in range(100)}
+            "versions": {f"1.{i}.0": f"url-{i}" for i in range(100)},
         }
 
         self.cache.set(self.test_purl, large_data)
@@ -263,7 +260,7 @@ class TestURLCache:
 
         # Verify timestamp in file
         cache_path = self.cache._get_cache_path(self.test_purl)
-        with open(cache_path, 'r') as f:
+        with open(cache_path, "r") as f:
             file_data = json.load(f)
 
         assert file_data["timestamp"] == 1609459200.0

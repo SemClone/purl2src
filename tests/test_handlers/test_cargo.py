@@ -75,7 +75,7 @@ class TestCargoHandler:
     def test_parse_fallback_output(self):
         """Test parsing cargo search output."""
         # Cargo search doesn't provide download URLs
-        output = "serde = \"1.0.130\"    # A generic serialization/deserialization framework"
+        output = 'serde = "1.0.130"    # A generic serialization/deserialization framework'
         url = self.handler.parse_fallback_output(output)
         assert url is None
 

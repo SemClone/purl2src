@@ -18,22 +18,14 @@ class TestNuGetHandler:
 
     def test_build_download_url_basic(self):
         """Test building download URL for basic package."""
-        purl = Purl(
-            ecosystem="nuget",
-            name="Newtonsoft.Json",
-            version="13.0.1"
-        )
+        purl = Purl(ecosystem="nuget", name="Newtonsoft.Json", version="13.0.1")
         url = self.handler.build_download_url(purl)
         expected = "https://api.nuget.org/v3-flatcontainer/newtonsoft.json/13.0.1/newtonsoft.json.13.0.1.nupkg"
         assert url == expected
 
     def test_build_download_url_case_handling(self):
         """Test that package names and versions are lowercased."""
-        purl = Purl(
-            ecosystem="nuget",
-            name="Microsoft.Extensions.Logging",
-            version="6.0.0"
-        )
+        purl = Purl(ecosystem="nuget", name="Microsoft.Extensions.Logging", version="6.0.0")
         url = self.handler.build_download_url(purl)
         expected = "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.logging/6.0.0/microsoft.extensions.logging.6.0.0.nupkg"
         assert url == expected
@@ -41,9 +33,7 @@ class TestNuGetHandler:
     def test_build_download_url_prerelease(self):
         """Test building download URL for prerelease package."""
         purl = Purl(
-            ecosystem="nuget",
-            name="Microsoft.AspNetCore.App",
-            version="7.0.0-rc.1.22426.10"
+            ecosystem="nuget", name="Microsoft.AspNetCore.App", version="7.0.0-rc.1.22426.10"
         )
         url = self.handler.build_download_url(purl)
         expected = "https://api.nuget.org/v3-flatcontainer/microsoft.aspnetcore.app/7.0.0-rc.1.22426.10/microsoft.aspnetcore.app.7.0.0-rc.1.22426.10.nupkg"
@@ -51,11 +41,7 @@ class TestNuGetHandler:
 
     def test_build_download_url_complex_name(self):
         """Test building download URL for complex package name."""
-        purl = Purl(
-            ecosystem="nuget",
-            name="System.Text.Json",
-            version="6.0.5"
-        )
+        purl = Purl(ecosystem="nuget", name="System.Text.Json", version="6.0.5")
         url = self.handler.build_download_url(purl)
         expected = "https://api.nuget.org/v3-flatcontainer/system.text.json/6.0.5/system.text.json.6.0.5.nupkg"
         assert url == expected
@@ -68,54 +54,34 @@ class TestNuGetHandler:
 
     def test_build_download_url_special_characters(self):
         """Test building download URL with special characters in name."""
-        purl = Purl(
-            ecosystem="nuget",
-            name="jQuery",
-            version="3.6.0"
-        )
+        purl = Purl(ecosystem="nuget", name="jQuery", version="3.6.0")
         url = self.handler.build_download_url(purl)
         expected = "https://api.nuget.org/v3-flatcontainer/jquery/3.6.0/jquery.3.6.0.nupkg"
         assert url == expected
 
     def test_build_download_url_numeric_version(self):
         """Test building download URL with numeric version formats."""
-        purl = Purl(
-            ecosystem="nuget",
-            name="EntityFramework",
-            version="6.4.4"
-        )
+        purl = Purl(ecosystem="nuget", name="EntityFramework", version="6.4.4")
         url = self.handler.build_download_url(purl)
         expected = "https://api.nuget.org/v3-flatcontainer/entityframework/6.4.4/entityframework.6.4.4.nupkg"
         assert url == expected
 
     def test_build_download_url_underscore_in_name(self):
         """Test building download URL with underscore in package name."""
-        purl = Purl(
-            ecosystem="nuget",
-            name="NUnit3TestAdapter",
-            version="4.2.1"
-        )
+        purl = Purl(ecosystem="nuget", name="NUnit3TestAdapter", version="4.2.1")
         url = self.handler.build_download_url(purl)
         expected = "https://api.nuget.org/v3-flatcontainer/nunit3testadapter/4.2.1/nunit3testadapter.4.2.1.nupkg"
         assert url == expected
 
     def test_get_download_url_from_api(self):
         """Test that API method returns None (not implemented)."""
-        purl = Purl(
-            ecosystem="nuget",
-            name="Newtonsoft.Json",
-            version="13.0.1"
-        )
+        purl = Purl(ecosystem="nuget", name="Newtonsoft.Json", version="13.0.1")
         url = self.handler.get_download_url_from_api(purl)
         assert url is None
 
     def test_get_fallback_cmd_with_version(self):
         """Test getting fallback command with version."""
-        purl = Purl(
-            ecosystem="nuget",
-            name="Newtonsoft.Json",
-            version="13.0.1"
-        )
+        purl = Purl(ecosystem="nuget", name="Newtonsoft.Json", version="13.0.1")
         cmd = self.handler.get_fallback_cmd(purl)
         assert cmd == "dotnet nuget list source"
 
@@ -178,21 +144,13 @@ class TestNuGetHandler:
     def test_build_download_url_version_edge_cases(self):
         """Test building download URL with various version edge cases."""
         # Version with four parts
-        purl = Purl(
-            ecosystem="nuget",
-            name="Microsoft.Extensions.Hosting",
-            version="6.0.1.0"
-        )
+        purl = Purl(ecosystem="nuget", name="Microsoft.Extensions.Hosting", version="6.0.1.0")
         url = self.handler.build_download_url(purl)
         expected = "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.hosting/6.0.1.0/microsoft.extensions.hosting.6.0.1.0.nupkg"
         assert url == expected
 
         # Version with pre-release and build metadata
-        purl = Purl(
-            ecosystem="nuget",
-            name="TestPackage",
-            version="1.0.0-beta.1+build.123"
-        )
+        purl = Purl(ecosystem="nuget", name="TestPackage", version="1.0.0-beta.1+build.123")
         url = self.handler.build_download_url(purl)
         expected = "https://api.nuget.org/v3-flatcontainer/testpackage/1.0.0-beta.1+build.123/testpackage.1.0.0-beta.1+build.123.nupkg"
         assert url == expected
@@ -202,7 +160,7 @@ class TestNuGetHandler:
         purl = Purl(
             ecosystem="nuget",
             name="Microsoft.Extensions.DependencyInjection.Abstractions",
-            version="6.0.0"
+            version="6.0.0",
         )
         url = self.handler.build_download_url(purl)
         expected = "https://api.nuget.org/v3-flatcontainer/microsoft.extensions.dependencyinjection.abstractions/6.0.0/microsoft.extensions.dependencyinjection.abstractions.6.0.0.nupkg"
@@ -210,11 +168,7 @@ class TestNuGetHandler:
 
     def test_case_sensitivity_consistency(self):
         """Test that case handling is consistent throughout the URL."""
-        purl = Purl(
-            ecosystem="nuget",
-            name="UPPERCASE.Package.NAME",
-            version="1.0.0-BETA"
-        )
+        purl = Purl(ecosystem="nuget", name="UPPERCASE.Package.NAME", version="1.0.0-BETA")
         url = self.handler.build_download_url(purl)
         # All parts should be lowercase
         expected = "https://api.nuget.org/v3-flatcontainer/uppercase.package.name/1.0.0-beta/uppercase.package.name.1.0.0-beta.nupkg"

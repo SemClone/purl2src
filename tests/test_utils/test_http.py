@@ -305,18 +305,18 @@ class TestHttpClient:
         with HttpClient() as client:
             assert isinstance(client, HttpClient)
             # Test that it has the context manager methods
-            assert hasattr(client, '__enter__')
-            assert hasattr(client, '__exit__')
+            assert hasattr(client, "__enter__")
+            assert hasattr(client, "__exit__")
 
         # Test the context manager calls close
-        with patch('purl2src.utils.http.HttpClient.close') as mock_close:
+        with patch("purl2src.utils.http.HttpClient.close") as mock_close:
             with HttpClient() as client:
                 pass
             mock_close.assert_called_once()
 
     def test_close_method(self):
         """Test close method."""
-        with patch.object(self.client.session, 'close') as mock_close:
+        with patch.object(self.client.session, "close") as mock_close:
             self.client.close()
             mock_close.assert_called_once()
 
@@ -332,7 +332,7 @@ class TestHttpClient:
         mock_get.side_effect = [
             requests.HTTPError("Server Error"),
             requests.HTTPError("Server Error"),
-            mock_response_success
+            mock_response_success,
         ]
 
         # This test verifies the retry adapter is configured
@@ -406,7 +406,7 @@ class TestHttpClient:
         content = b"test file content"
         checksum = hashlib.sha256(content).hexdigest()
 
-        with patch.object(self.client, 'get') as mock_get:
+        with patch.object(self.client, "get") as mock_get:
             mock_response = Mock()
             mock_response.iter_content.return_value = [content]
             mock_response.raise_for_status = Mock()

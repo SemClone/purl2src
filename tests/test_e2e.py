@@ -39,7 +39,10 @@ class TestE2E:
     def test_nuget_package(self):
         """Verify NuGet package resolves correctly."""
         result = get_download_url("pkg:nuget/Newtonsoft.Json@13.0.2")
-        assert result.download_url == "https://api.nuget.org/v3-flatcontainer/newtonsoft.json/13.0.2/newtonsoft.json.13.0.2.nupkg"
+        assert (
+            result.download_url
+            == "https://api.nuget.org/v3-flatcontainer/newtonsoft.json/13.0.2/newtonsoft.json.13.0.2.nupkg"
+        )
 
     def test_maven_package(self):
         """Verify Maven package resolves correctly."""
@@ -49,7 +52,9 @@ class TestE2E:
 
     def test_maven_with_classifier(self):
         """Verify Maven package with classifier resolves correctly."""
-        result = get_download_url("pkg:maven/org.apache.commons/commons-lang3@3.12.0?classifier=sources")
+        result = get_download_url(
+            "pkg:maven/org.apache.commons/commons-lang3@3.12.0?classifier=sources"
+        )
         expected = "https://repo.maven.apache.org/maven2/org/apache/commons/commons-lang3/3.12.0/commons-lang3-3.12.0-sources.jar"
         assert result.download_url == expected
 
@@ -57,7 +62,10 @@ class TestE2E:
         """Verify Golang package resolves correctly."""
         result = get_download_url("pkg:golang/github.com/gin-gonic/gin@v1.9.0")
         # Go proxy uses URL encoding for slashes
-        assert result.download_url == "https://proxy.golang.org/github.com%2Fgin-gonic%2Fgin/@v/v1.9.0.zip"
+        assert (
+            result.download_url
+            == "https://proxy.golang.org/github.com%2Fgin-gonic%2Fgin/@v/v1.9.0.zip"
+        )
 
     def test_github_package(self):
         """Verify GitHub package resolves correctly."""
@@ -69,12 +77,13 @@ class TestE2E:
 
     def test_conda_package(self):
         """Verify Conda package resolves correctly (if qualifiers provided)."""
-        result = get_download_url("pkg:conda/numpy@1.24.0?channel=conda-forge&subdir=linux-64&build=py39h1234567_0")
+        result = get_download_url(
+            "pkg:conda/numpy@1.24.0?channel=conda-forge&subdir=linux-64&build=py39h1234567_0"
+        )
         # Conda requires specific qualifiers, may return None if not all provided
         if result.download_url:
             assert "numpy" in result.download_url
             assert "1.24.0" in result.download_url
-
 
     def test_validation_flag(self):
         """Verify validation actually checks if URL exists."""
@@ -83,7 +92,9 @@ class TestE2E:
         assert result.validated is True
 
         # Non-existent package should not validate
-        result = get_download_url("pkg:npm/this-definitely-does-not-exist-xyz123@1.0.0", validate=True)
+        result = get_download_url(
+            "pkg:npm/this-definitely-does-not-exist-xyz123@1.0.0", validate=True
+        )
         # If it returns a URL, it should fail validation
         if result.download_url:
             assert result.validated is False

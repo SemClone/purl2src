@@ -19,10 +19,7 @@ class TestMavenHandler:
     def test_build_download_url_basic(self):
         """Test building download URL for basic artifact."""
         purl = Purl(
-            ecosystem="maven",
-            namespace="org.springframework",
-            name="spring-core",
-            version="5.3.21"
+            ecosystem="maven", namespace="org.springframework", name="spring-core", version="5.3.21"
         )
         url = self.handler.build_download_url(purl)
         expected = "https://repo.maven.apache.org/maven2/org/springframework/spring-core/5.3.21/spring-core-5.3.21.jar"
@@ -35,7 +32,7 @@ class TestMavenHandler:
             namespace="org.springframework",
             name="spring-core",
             version="5.3.21",
-            qualifiers={"classifier": "sources"}
+            qualifiers={"classifier": "sources"},
         )
         url = self.handler.build_download_url(purl)
         expected = "https://repo.maven.apache.org/maven2/org/springframework/spring-core/5.3.21/spring-core-5.3.21-sources.jar"
@@ -48,7 +45,7 @@ class TestMavenHandler:
             namespace="org.springframework",
             name="spring-core",
             version="5.3.21",
-            qualifiers={"type": "pom"}
+            qualifiers={"type": "pom"},
         )
         url = self.handler.build_download_url(purl)
         expected = "https://repo.maven.apache.org/maven2/org/springframework/spring-core/5.3.21/spring-core-5.3.21.pom"
@@ -61,7 +58,7 @@ class TestMavenHandler:
             namespace="org.springframework",
             name="spring-core",
             version="5.3.21",
-            qualifiers={"packaging": "sources"}
+            qualifiers={"packaging": "sources"},
         )
         url = self.handler.build_download_url(purl)
         expected = "https://repo.maven.apache.org/maven2/org/springframework/spring-core/5.3.21/spring-core-5.3.21-sources.jar"
@@ -74,7 +71,7 @@ class TestMavenHandler:
             namespace="org.springframework",
             name="spring-core",
             version="5.3.21",
-            qualifiers={"repository_url": "https://repo.spring.io/release"}
+            qualifiers={"repository_url": "https://repo.spring.io/release"},
         )
         url = self.handler.build_download_url(purl)
         expected = "https://repo.spring.io/release/org/springframework/spring-core/5.3.21/spring-core-5.3.21.jar"
@@ -86,7 +83,7 @@ class TestMavenHandler:
             ecosystem="maven",
             namespace="com.fasterxml.jackson.core",
             name="jackson-core",
-            version="2.13.3"
+            version="2.13.3",
         )
         url = self.handler.build_download_url(purl)
         expected = "https://repo.maven.apache.org/maven2/com/fasterxml/jackson/core/jackson-core/2.13.3/jackson-core-2.13.3.jar"
@@ -95,10 +92,7 @@ class TestMavenHandler:
     def test_build_download_url_snapshot_version(self):
         """Test building download URL with SNAPSHOT version."""
         purl = Purl(
-            ecosystem="maven",
-            namespace="org.example",
-            name="my-library",
-            version="1.0.0-SNAPSHOT"
+            ecosystem="maven", namespace="org.example", name="my-library", version="1.0.0-SNAPSHOT"
         )
         url = self.handler.build_download_url(purl)
         expected = "https://repo.maven.apache.org/maven2/org/example/my-library/1.0.0-SNAPSHOT/my-library-1.0.0-SNAPSHOT.jar"
@@ -106,21 +100,13 @@ class TestMavenHandler:
 
     def test_build_download_url_no_version(self):
         """Test building download URL without version."""
-        purl = Purl(
-            ecosystem="maven",
-            namespace="org.springframework",
-            name="spring-core"
-        )
+        purl = Purl(ecosystem="maven", namespace="org.springframework", name="spring-core")
         url = self.handler.build_download_url(purl)
         assert url is None
 
     def test_build_download_url_no_namespace(self):
         """Test building download URL without namespace."""
-        purl = Purl(
-            ecosystem="maven",
-            name="spring-core",
-            version="5.3.21"
-        )
+        purl = Purl(ecosystem="maven", name="spring-core", version="5.3.21")
         url = self.handler.build_download_url(purl)
         assert url is None
 
@@ -131,7 +117,7 @@ class TestMavenHandler:
             namespace="org.springframework",
             name="spring-core",
             version="5.3.21",
-            qualifiers={"classifier": "javadoc", "type": "jar"}
+            qualifiers={"classifier": "javadoc", "type": "jar"},
         )
         url = self.handler.build_download_url(purl)
         expected = "https://repo.maven.apache.org/maven2/org/springframework/spring-core/5.3.21/spring-core-5.3.21-javadoc.jar"
@@ -140,10 +126,7 @@ class TestMavenHandler:
     def test_get_download_url_from_api(self):
         """Test that API method returns None (not implemented)."""
         purl = Purl(
-            ecosystem="maven",
-            namespace="org.springframework",
-            name="spring-core",
-            version="5.3.21"
+            ecosystem="maven", namespace="org.springframework", name="spring-core", version="5.3.21"
         )
         url = self.handler.get_download_url_from_api(purl)
         assert url is None
@@ -151,13 +134,13 @@ class TestMavenHandler:
     def test_get_fallback_cmd_basic(self):
         """Test getting fallback command for basic artifact."""
         purl = Purl(
-            ecosystem="maven",
-            namespace="org.springframework",
-            name="spring-core",
-            version="5.3.21"
+            ecosystem="maven", namespace="org.springframework", name="spring-core", version="5.3.21"
         )
         cmd = self.handler.get_fallback_cmd(purl)
-        assert cmd == "mvn dependency:get -Dartifact=org.springframework:spring-core:5.3.21:jar -Dtransitive=false"
+        assert (
+            cmd
+            == "mvn dependency:get -Dartifact=org.springframework:spring-core:5.3.21:jar -Dtransitive=false"
+        )
 
     def test_get_fallback_cmd_with_classifier(self):
         """Test getting fallback command with classifier."""
@@ -166,10 +149,13 @@ class TestMavenHandler:
             namespace="org.springframework",
             name="spring-core",
             version="5.3.21",
-            qualifiers={"classifier": "sources"}
+            qualifiers={"classifier": "sources"},
         )
         cmd = self.handler.get_fallback_cmd(purl)
-        assert cmd == "mvn dependency:get -Dartifact=org.springframework:spring-core:5.3.21:jar:sources -Dtransitive=false"
+        assert (
+            cmd
+            == "mvn dependency:get -Dartifact=org.springframework:spring-core:5.3.21:jar:sources -Dtransitive=false"
+        )
 
     def test_get_fallback_cmd_with_type(self):
         """Test getting fallback command with custom type."""
@@ -178,10 +164,13 @@ class TestMavenHandler:
             namespace="org.springframework",
             name="spring-core",
             version="5.3.21",
-            qualifiers={"type": "pom"}
+            qualifiers={"type": "pom"},
         )
         cmd = self.handler.get_fallback_cmd(purl)
-        assert cmd == "mvn dependency:get -Dartifact=org.springframework:spring-core:5.3.21:pom -Dtransitive=false"
+        assert (
+            cmd
+            == "mvn dependency:get -Dartifact=org.springframework:spring-core:5.3.21:pom -Dtransitive=false"
+        )
 
     def test_get_fallback_cmd_sources_packaging(self):
         """Test getting fallback command with sources packaging."""
@@ -190,10 +179,13 @@ class TestMavenHandler:
             namespace="org.springframework",
             name="spring-core",
             version="5.3.21",
-            qualifiers={"packaging": "sources"}
+            qualifiers={"packaging": "sources"},
         )
         cmd = self.handler.get_fallback_cmd(purl)
-        assert cmd == "mvn dependency:get -Dartifact=org.springframework:spring-core:5.3.21:jar:sources -Dtransitive=false"
+        assert (
+            cmd
+            == "mvn dependency:get -Dartifact=org.springframework:spring-core:5.3.21:jar:sources -Dtransitive=false"
+        )
 
     def test_get_fallback_cmd_with_custom_repository(self):
         """Test getting fallback command with custom repository."""
@@ -202,7 +194,7 @@ class TestMavenHandler:
             namespace="org.springframework",
             name="spring-core",
             version="5.3.21",
-            qualifiers={"repository_url": "https://repo.spring.io/release"}
+            qualifiers={"repository_url": "https://repo.spring.io/release"},
         )
         cmd = self.handler.get_fallback_cmd(purl)
         expected = "mvn dependency:get -Dartifact=org.springframework:spring-core:5.3.21:jar -Dtransitive=false -DremoteRepositories=https://repo.spring.io/release"
@@ -215,28 +207,23 @@ class TestMavenHandler:
             namespace="org.springframework",
             name="spring-core",
             version="5.3.21",
-            qualifiers={"classifier": "javadoc", "type": "jar"}
+            qualifiers={"classifier": "javadoc", "type": "jar"},
         )
         cmd = self.handler.get_fallback_cmd(purl)
-        assert cmd == "mvn dependency:get -Dartifact=org.springframework:spring-core:5.3.21:jar:javadoc -Dtransitive=false"
+        assert (
+            cmd
+            == "mvn dependency:get -Dartifact=org.springframework:spring-core:5.3.21:jar:javadoc -Dtransitive=false"
+        )
 
     def test_get_fallback_cmd_no_version(self):
         """Test getting fallback command without version."""
-        purl = Purl(
-            ecosystem="maven",
-            namespace="org.springframework",
-            name="spring-core"
-        )
+        purl = Purl(ecosystem="maven", namespace="org.springframework", name="spring-core")
         cmd = self.handler.get_fallback_cmd(purl)
         assert cmd is None
 
     def test_get_fallback_cmd_no_namespace(self):
         """Test getting fallback command without namespace."""
-        purl = Purl(
-            ecosystem="maven",
-            name="spring-core",
-            version="5.3.21"
-        )
+        purl = Purl(ecosystem="maven", name="spring-core", version="5.3.21")
         cmd = self.handler.get_fallback_cmd(purl)
         assert cmd is None
 
@@ -268,12 +255,7 @@ class TestMavenHandler:
 
     def test_edge_cases_single_letter_group(self):
         """Test edge case with single letter group ID."""
-        purl = Purl(
-            ecosystem="maven",
-            namespace="a",
-            name="artifact",
-            version="1.0.0"
-        )
+        purl = Purl(ecosystem="maven", namespace="a", name="artifact", version="1.0.0")
         url = self.handler.build_download_url(purl)
         expected = "https://repo.maven.apache.org/maven2/a/artifact/1.0.0/artifact-1.0.0.jar"
         assert url == expected
@@ -281,10 +263,7 @@ class TestMavenHandler:
     def test_edge_cases_special_characters_in_name(self):
         """Test edge case with special characters in artifact name."""
         purl = Purl(
-            ecosystem="maven",
-            namespace="org.example",
-            name="my-artifact_name",
-            version="1.0.0"
+            ecosystem="maven", namespace="org.example", name="my-artifact_name", version="1.0.0"
         )
         url = self.handler.build_download_url(purl)
         expected = "https://repo.maven.apache.org/maven2/org/example/my-artifact_name/1.0.0/my-artifact_name-1.0.0.jar"
@@ -296,7 +275,7 @@ class TestMavenHandler:
             ecosystem="maven",
             namespace="com.example.very.long.group.id.with.many.parts",
             name="artifact",
-            version="1.0.0"
+            version="1.0.0",
         )
         url = self.handler.build_download_url(purl)
         expected = "https://repo.maven.apache.org/maven2/com/example/very/long/group/id/with/many/parts/artifact/1.0.0/artifact-1.0.0.jar"

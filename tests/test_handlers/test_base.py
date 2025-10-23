@@ -38,7 +38,12 @@ class TestBaseHandler:
                     raise Exception("API method failed")
 
             def get_fallback_cmd(self, purl: Purl):
-                if purl.name in ["fallback_success", "fallback_fail", "direct_success", "api_success"]:
+                if purl.name in [
+                    "fallback_success",
+                    "fallback_fail",
+                    "direct_success",
+                    "api_success",
+                ]:
                     return f"echo https://example.com/{purl.name}.tgz"
                 return None
 
@@ -64,7 +69,7 @@ class TestBaseHandler:
             validated=True,
             method="direct",
             fallback_command="testpm download package@1.0.0",
-            status="success"
+            status="success",
         )
 
         assert result.purl == "pkg:test/package@1.0.0"
@@ -87,7 +92,7 @@ class TestBaseHandler:
             validated=False,
             method="none",
             error="Failed to resolve",
-            status="failed"
+            status="failed",
         )
 
         result_dict = result.to_dict()
@@ -141,10 +146,12 @@ class TestBaseHandler:
 
         # Override the test handler to also provide API method for this PURL
         original_api_method = self.handler.get_download_url_from_api
+
         def mock_api_method(p):
             if p.name == "direct_success":
                 return "https://example.com/api.tgz"
             return original_api_method(p)
+
         self.handler.get_download_url_from_api = mock_api_method
 
         result = self.handler.get_download_url(purl, validate=True)
@@ -233,7 +240,9 @@ class TestBaseHandler:
     def test_is_package_manager_available_alternative_found(self):
         """Test package manager availability check with alternative command."""
         with patch("shutil.which") as mock_which:
-            mock_which.side_effect = lambda cmd: "/usr/bin/alt-testpm" if cmd == "alt-testpm" else None
+            mock_which.side_effect = lambda cmd: (
+                "/usr/bin/alt-testpm" if cmd == "alt-testpm" else None
+            )
 
             assert self.handler.is_package_manager_available() is True
             # Should check both commands
@@ -271,9 +280,7 @@ class TestBaseHandler:
     @patch("subprocess.run")
     def test_execute_fallback_command_error(self, mock_run):
         """Test fallback command execution error."""
-        mock_run.side_effect = subprocess.CalledProcessError(
-            1, "testpm", stderr="Command failed"
-        )
+        mock_run.side_effect = subprocess.CalledProcessError(1, "testpm", stderr="Command failed")
 
         purl = Purl(ecosystem="test", name="fallback_success", version="1.0.0")
 
@@ -296,12 +303,16 @@ class TestBaseHandler:
         class MinimalHandler(BaseHandler):
             def build_download_url(self, purl: Purl):
                 return None
+
             def get_download_url_from_api(self, purl: Purl):
                 return None
+
             def get_fallback_cmd(self, purl: Purl):
                 return None
+
             def get_package_manager_cmd(self):
                 return []
+
             # Inherit base parse_fallback_output (doesn't override)
 
         handler = MinimalHandler(self.http_client)
@@ -454,6 +465,9 @@ class TestBaseHandler:
         result = handler.get_download_url(purl, validate=True)
 
         # get_fallback_cmd is called first to check availability, then direct succeeds
-        assert method_calls == ["fallback_cmd_check", "direct"]  # Should not call api or fallback execute
+        assert method_calls == [
+            "fallback_cmd_check",
+            "direct",
+        ]  # Should not call api or fallback execute
         assert result.method == "direct"
         assert result.status == "success"

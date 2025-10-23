@@ -18,23 +18,14 @@ class TestPyPiHandler:
 
     def test_build_download_url_basic(self):
         """Test building download URL for basic package."""
-        purl = Purl(
-            ecosystem="pypi",
-            name="requests",
-            version="2.28.1"
-        )
+        purl = Purl(ecosystem="pypi", name="requests", version="2.28.1")
         url = self.handler.build_download_url(purl)
         expected = "https://pypi.python.org/packages/source/r/requests/requests-2.28.1.tar.gz"
         assert url == expected
 
     def test_build_download_url_with_namespace(self):
         """Test building download URL with namespace (uses namespace for first letter)."""
-        purl = Purl(
-            ecosystem="pypi",
-            namespace="mycompany",
-            name="package",
-            version="1.0.0"
-        )
+        purl = Purl(ecosystem="pypi", namespace="mycompany", name="package", version="1.0.0")
         url = self.handler.build_download_url(purl)
         expected = "https://pypi.python.org/packages/source/m/package/package-1.0.0.tar.gz"
         assert url == expected
@@ -75,18 +66,21 @@ class TestPyPiHandler:
                 "2.28.1": [
                     {
                         "packagetype": "sdist",
-                        "url": "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz"
+                        "url": "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz",
                     },
                     {
                         "packagetype": "bdist_wheel",
-                        "url": "https://files.pythonhosted.org/packages/py3/requests-2.28.1-py3-none-any.whl"
-                    }
+                        "url": "https://files.pythonhosted.org/packages/py3/requests-2.28.1-py3-none-any.whl",
+                    },
                 ]
             }
         }
 
         url = self.handler.get_download_url_from_api(purl)
-        assert url == "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz"
+        assert (
+            url
+            == "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz"
+        )
 
         # Verify API call
         self.http_client.get_json.assert_called_once_with("https://pypi.org/pypi/requests/json")
@@ -100,17 +94,20 @@ class TestPyPiHandler:
             "urls": [
                 {
                     "packagetype": "sdist",
-                    "url": "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz"
+                    "url": "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz",
                 },
                 {
                     "packagetype": "bdist_wheel",
-                    "url": "https://files.pythonhosted.org/packages/py3/requests-2.28.1-py3-none-any.whl"
-                }
+                    "url": "https://files.pythonhosted.org/packages/py3/requests-2.28.1-py3-none-any.whl",
+                },
             ]
         }
 
         url = self.handler.get_download_url_from_api(purl)
-        assert url == "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz"
+        assert (
+            url
+            == "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz"
+        )
 
     def test_get_download_url_from_api_no_sdist(self):
         """Test API method when no sdist available, fallback to any tar.gz."""
@@ -122,18 +119,21 @@ class TestPyPiHandler:
                 "2.28.1": [
                     {
                         "packagetype": "bdist_wheel",
-                        "url": "https://files.pythonhosted.org/packages/py3/requests-2.28.1-py3-none-any.whl"
+                        "url": "https://files.pythonhosted.org/packages/py3/requests-2.28.1-py3-none-any.whl",
                     },
                     {
                         "packagetype": "other",
-                        "url": "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz"
-                    }
+                        "url": "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz",
+                    },
                 ]
             }
         }
 
         url = self.handler.get_download_url_from_api(purl)
-        assert url == "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz"
+        assert (
+            url
+            == "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz"
+        )
 
     def test_get_download_url_from_api_version_not_found(self):
         """Test API method when version is not found."""
@@ -145,7 +145,7 @@ class TestPyPiHandler:
                 "2.28.1": [
                     {
                         "packagetype": "sdist",
-                        "url": "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz"
+                        "url": "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz",
                     }
                 ]
             }
@@ -214,7 +214,10 @@ class TestPyPiHandler:
 Successfully downloaded requests"""
 
         url = self.handler.parse_fallback_output(output)
-        assert url == "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz"
+        assert (
+            url
+            == "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz"
+        )
 
     def test_parse_fallback_output_from_pattern(self):
         """Test parsing pip download output with 'from' pattern."""
@@ -223,7 +226,10 @@ Successfully downloaded requests"""
 Successfully downloaded requests"""
 
         url = self.handler.parse_fallback_output(output)
-        assert url == "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz"
+        assert (
+            url
+            == "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz"
+        )
 
     def test_parse_fallback_output_no_url(self):
         """Test parsing pip download output without URL."""
@@ -244,7 +250,10 @@ Successfully downloaded requests urllib3"""
 
         url = self.handler.parse_fallback_output(output)
         # Should return the first URL found
-        assert url == "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz"
+        assert (
+            url
+            == "https://files.pythonhosted.org/packages/source/r/requests/requests-2.28.1.tar.gz"
+        )
 
     def test_parse_fallback_output_empty(self):
         """Test parsing empty pip download output."""

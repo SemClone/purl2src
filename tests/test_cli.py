@@ -26,7 +26,7 @@ class TestCLI:
             validated=True,
             method="direct",
             fallback_command="npm view express@4.17.1 dist.tarball",
-            status="success"
+            status="success",
         )
 
         # Create a sample failed result
@@ -36,7 +36,7 @@ class TestCLI:
             validated=False,
             method="none",
             error="Failed to resolve download URL",
-            status="failed"
+            status="failed",
         )
 
     def test_version_option(self):
@@ -57,13 +57,13 @@ class TestCLI:
         """Test processing single PURL with plain output format."""
         mock_get_url.return_value = self.success_result
 
-        result = self.runner.invoke(main, [
-            "pkg:npm/express@4.17.1",
-            "--format", "plain"
-        ])
+        result = self.runner.invoke(main, ["pkg:npm/express@4.17.1", "--format", "plain"])
 
         assert result.exit_code == 0
-        assert "pkg:npm/express@4.17.1 -> https://registry.npmjs.org/express/-/express-4.17.1.tgz" in result.output
+        assert (
+            "pkg:npm/express@4.17.1 -> https://registry.npmjs.org/express/-/express-4.17.1.tgz"
+            in result.output
+        )
         mock_get_url.assert_called_once_with("pkg:npm/express@4.17.1", validate=True)
 
     @patch("purl2src.cli.get_download_url")
@@ -71,16 +71,16 @@ class TestCLI:
         """Test processing single PURL with JSON output format."""
         mock_get_url.return_value = self.success_result
 
-        result = self.runner.invoke(main, [
-            "pkg:npm/express@4.17.1",
-            "--format", "json"
-        ])
+        result = self.runner.invoke(main, ["pkg:npm/express@4.17.1", "--format", "json"])
 
         assert result.exit_code == 0
         output_json = json.loads(result.output)
         assert len(output_json) == 1
         assert output_json[0]["purl"] == "pkg:npm/express@4.17.1"
-        assert output_json[0]["download_url"] == "https://registry.npmjs.org/express/-/express-4.17.1.tgz"
+        assert (
+            output_json[0]["download_url"]
+            == "https://registry.npmjs.org/express/-/express-4.17.1.tgz"
+        )
         assert output_json[0]["status"] == "success"
 
     @patch("purl2src.cli.get_download_url")
@@ -88,25 +88,23 @@ class TestCLI:
         """Test processing single PURL with CSV output format."""
         mock_get_url.return_value = self.success_result
 
-        result = self.runner.invoke(main, [
-            "pkg:npm/express@4.17.1",
-            "--format", "csv"
-        ])
+        result = self.runner.invoke(main, ["pkg:npm/express@4.17.1", "--format", "csv"])
 
         assert result.exit_code == 0
         lines = result.output.strip().split("\n")
         assert len(lines) == 2
         assert lines[0] == "purl,download_url,status,method"
-        assert "pkg:npm/express@4.17.1,https://registry.npmjs.org/express/-/express-4.17.1.tgz,success,direct" in lines[1]
+        assert (
+            "pkg:npm/express@4.17.1,https://registry.npmjs.org/express/-/express-4.17.1.tgz,success,direct"
+            in lines[1]
+        )
 
     @patch("purl2src.cli.get_download_url")
     def test_single_purl_failure(self, mock_get_url):
         """Test processing single PURL that fails."""
         mock_get_url.return_value = self.failed_result
 
-        result = self.runner.invoke(main, [
-            "pkg:npm/nonexistent@1.0.0"
-        ])
+        result = self.runner.invoke(main, ["pkg:npm/nonexistent@1.0.0"])
 
         assert result.exit_code == 1
         assert "pkg:npm/nonexistent@1.0.0 -> ERROR: Failed to resolve download URL" in result.output
@@ -116,10 +114,7 @@ class TestCLI:
         """Test --no-validate flag."""
         mock_get_url.return_value = self.success_result
 
-        result = self.runner.invoke(main, [
-            "pkg:npm/express@4.17.1",
-            "--no-validate"
-        ])
+        result = self.runner.invoke(main, ["pkg:npm/express@4.17.1", "--no-validate"])
 
         assert result.exit_code == 0
         mock_get_url.assert_called_once_with("pkg:npm/express@4.17.1", validate=False)
@@ -129,10 +124,7 @@ class TestCLI:
         """Test --validate flag (default)."""
         mock_get_url.return_value = self.success_result
 
-        result = self.runner.invoke(main, [
-            "pkg:npm/express@4.17.1",
-            "--validate"
-        ])
+        result = self.runner.invoke(main, ["pkg:npm/express@4.17.1", "--validate"])
 
         assert result.exit_code == 0
         mock_get_url.assert_called_once_with("pkg:npm/express@4.17.1", validate=True)
@@ -140,6 +132,7 @@ class TestCLI:
     @patch("purl2src.cli.get_download_url")
     def test_batch_processing_from_file(self, mock_get_url):
         """Test batch processing from file."""
+
         # Setup mock to return different results for different PURLs
         def mock_side_effect(purl, validate=True):
             if "express" in purl:
@@ -149,7 +142,7 @@ class TestCLI:
 
         mock_get_url.side_effect = mock_side_effect
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
             f.write("pkg:npm/express@4.17.1\n")
             f.write("# This is a comment\n")
             f.write("pkg:npm/nonexistent@1.0.0\n")
@@ -157,10 +150,7 @@ class TestCLI:
             temp_file = f.name
 
         try:
-            result = self.runner.invoke(main, [
-                "--file", temp_file,
-                "--format", "json"
-            ])
+            result = self.runner.invoke(main, ["--file", temp_file, "--format", "json"])
 
             assert result.exit_code == 1  # Should exit with error due to one failure
             output_json = json.loads(result.output)
@@ -179,22 +169,27 @@ class TestCLI:
         """Test writing output to file."""
         mock_get_url.return_value = self.success_result
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             output_file = f.name
 
         try:
-            result = self.runner.invoke(main, [
-                "pkg:npm/express@4.17.1",
-                "--output", output_file,
-                "--format", "json",
-                "--verbose"
-            ])
+            result = self.runner.invoke(
+                main,
+                [
+                    "pkg:npm/express@4.17.1",
+                    "--output",
+                    output_file,
+                    "--format",
+                    "json",
+                    "--verbose",
+                ],
+            )
 
             assert result.exit_code == 0
             assert f"Results written to {output_file}" in result.output
 
             # Check file contents
-            with open(output_file, 'r') as f:
+            with open(output_file, "r") as f:
                 content = json.load(f)
             assert len(content) == 1
             assert content[0]["purl"] == "pkg:npm/express@4.17.1"
@@ -207,7 +202,7 @@ class TestCLI:
         """Test verbose mode with multiple PURLs shows progress."""
         mock_get_url.return_value = self.success_result
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
             f.write("pkg:npm/express@4.17.1\n")
             f.write("pkg:npm/lodash@4.17.21\n")
             f.write("pkg:npm/react@17.0.2\n")
@@ -219,13 +214,10 @@ class TestCLI:
                 mock_progressbar.return_value = [
                     "pkg:npm/express@4.17.1",
                     "pkg:npm/lodash@4.17.21",
-                    "pkg:npm/react@17.0.2"
+                    "pkg:npm/react@17.0.2",
                 ]
 
-                result = self.runner.invoke(main, [
-                    "--file", temp_file,
-                    "--verbose"
-                ])
+                result = self.runner.invoke(main, ["--file", temp_file, "--verbose"])
 
                 assert result.exit_code == 0
                 # Should have called progressbar with verbose mode
@@ -239,10 +231,7 @@ class TestCLI:
         """Test verbose mode shows error count."""
         mock_get_url.return_value = self.failed_result
 
-        result = self.runner.invoke(main, [
-            "pkg:npm/nonexistent@1.0.0",
-            "--verbose"
-        ])
+        result = self.runner.invoke(main, ["pkg:npm/nonexistent@1.0.0", "--verbose"])
 
         assert result.exit_code == 1
         assert "Completed with 1 error(s)" in result.output
@@ -252,10 +241,7 @@ class TestCLI:
         """Test handling of exceptions during processing."""
         mock_get_url.side_effect = ValueError("Test error")
 
-        result = self.runner.invoke(main, [
-            "pkg:npm/express@4.17.1",
-            "--format", "json"
-        ])
+        result = self.runner.invoke(main, ["pkg:npm/express@4.17.1", "--format", "json"])
 
         assert result.exit_code == 1
         output_json = json.loads(result.output)
@@ -274,9 +260,7 @@ class TestCLI:
 
     def test_invalid_file_path(self):
         """Test error with invalid file path."""
-        result = self.runner.invoke(main, [
-            "--file", "/nonexistent/file.txt"
-        ])
+        result = self.runner.invoke(main, ["--file", "/nonexistent/file.txt"])
 
         # Click should handle this with its path validation
         assert result.exit_code != 0
@@ -287,7 +271,7 @@ class TestCLI:
         results = [self.success_result, self.failed_result]
         mock_get_url.side_effect = results
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
             f.write("pkg:npm/express@4.17.1\n")
             f.write("pkg:npm/nonexistent@1.0.0\n")
             temp_file = f.name
@@ -297,18 +281,22 @@ class TestCLI:
             with patch("click.progressbar") as mock_progressbar:
                 mock_progressbar.return_value = [
                     "pkg:npm/express@4.17.1",
-                    "pkg:npm/nonexistent@1.0.0"
+                    "pkg:npm/nonexistent@1.0.0",
                 ]
 
-                result = self.runner.invoke(main, [
-                    "--file", temp_file,
-                    "--format", "plain",
-                    "--verbose"
-                ])
+                result = self.runner.invoke(
+                    main, ["--file", temp_file, "--format", "plain", "--verbose"]
+                )
 
                 assert result.exit_code == 1  # Should exit with error
-                assert "pkg:npm/express@4.17.1 -> https://registry.npmjs.org/express/-/express-4.17.1.tgz" in result.output
-                assert "pkg:npm/nonexistent@1.0.0 -> ERROR: Failed to resolve download URL" in result.output
+                assert (
+                    "pkg:npm/express@4.17.1 -> https://registry.npmjs.org/express/-/express-4.17.1.tgz"
+                    in result.output
+                )
+                assert (
+                    "pkg:npm/nonexistent@1.0.0 -> ERROR: Failed to resolve download URL"
+                    in result.output
+                )
                 assert "Completed with 1 error(s)" in result.output
 
         finally:
@@ -323,15 +311,12 @@ class TestCLI:
             download_url="https://example.com/test.tgz",
             validated=True,
             method="api",
-            status="success"
+            status="success",
             # fallback_command is None
         )
         mock_get_url.return_value = partial_result
 
-        result = self.runner.invoke(main, [
-            "pkg:npm/test@1.0.0",
-            "--format", "csv"
-        ])
+        result = self.runner.invoke(main, ["pkg:npm/test@1.0.0", "--format", "csv"])
 
         assert result.exit_code == 0
         lines = result.output.strip().split("\n")
@@ -343,10 +328,7 @@ class TestCLI:
         """Test plain output format when download URL is None."""
         mock_get_url.return_value = self.failed_result
 
-        result = self.runner.invoke(main, [
-            "pkg:npm/nonexistent@1.0.0",
-            "--format", "plain"
-        ])
+        result = self.runner.invoke(main, ["pkg:npm/nonexistent@1.0.0", "--format", "plain"])
 
         assert result.exit_code == 1
         assert "pkg:npm/nonexistent@1.0.0 -> ERROR: Failed to resolve download URL" in result.output
@@ -354,6 +336,7 @@ class TestCLI:
     @patch("purl2src.cli.get_download_url")
     def test_file_with_comments_and_empty_lines(self, mock_get_url):
         """Test file processing ignores comments and empty lines."""
+
         # Return different results for different PURLs
         def mock_side_effect(purl, validate=True):
             if "express" in purl:
@@ -362,7 +345,7 @@ class TestCLI:
                     download_url="https://registry.npmjs.org/express/-/express-4.17.1.tgz",
                     validated=validate,
                     method="direct",
-                    status="success"
+                    status="success",
                 )
             elif "lodash" in purl:
                 return HandlerResult(
@@ -370,14 +353,14 @@ class TestCLI:
                     download_url="https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz",
                     validated=validate,
                     method="direct",
-                    status="success"
+                    status="success",
                 )
             else:
                 return self.success_result
 
         mock_get_url.side_effect = mock_side_effect
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
             f.write("# This is a comment\n")
             f.write("\n")
             f.write("  \n")  # Line with only spaces
@@ -388,10 +371,7 @@ class TestCLI:
             temp_file = f.name
 
         try:
-            result = self.runner.invoke(main, [
-                "--file", temp_file,
-                "--format", "json"
-            ])
+            result = self.runner.invoke(main, ["--file", temp_file, "--format", "json"])
 
             assert result.exit_code == 0
             output_json = json.loads(result.output)
