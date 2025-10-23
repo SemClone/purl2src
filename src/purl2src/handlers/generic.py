@@ -4,7 +4,7 @@ import re
 from typing import Optional, List
 
 from ..parser import Purl
-from .base import BaseHandler
+from .base import BaseHandler, HandlerResult
 
 
 class GenericHandler(BaseHandler):
