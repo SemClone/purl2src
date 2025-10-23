@@ -137,3 +137,9 @@ dmypy.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Test files (local testing only)
+test_*.txt
+test_*.json
+test_purls.*
+test_small.*
