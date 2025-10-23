@@ -76,16 +76,14 @@ class TestRubyGemsHandler(unittest.TestCase):
         }
 
         url = self.handler.get_download_url_from_api(purl)
-        # Should return the URL as-is without adding .git since it's not from GitHub
-        assert url == "https://evil.com/github.com/malicious"
+        # Should return None since it's not from GitHub and no other URL is available
+        assert url is None
 
     def test_get_download_url_from_api_with_safe_github_homepage(self):
         """Test API response with safe GitHub homepage_uri."""
         purl = Purl(ecosystem="gem", name="rails", version="7.0.0")
 
-        self.http_client.get_json.return_value = {
-            "homepage_uri": "https://github.com/rails/rails"
-        }
+        self.http_client.get_json.return_value = {"homepage_uri": "https://github.com/rails/rails"}
 
         url = self.handler.get_download_url_from_api(purl)
         assert url == "https://github.com/rails/rails.git"

@@ -64,10 +64,12 @@ class CondaHandler(BaseHandler):
 
     def parse_fallback_output(self, output: str) -> Optional[str]:
         """Parse conda search output."""
-        # Look for "url :" line
+        # Look for "url" line with various formatting
+        import re
+
         for line in output.split("\n"):
-            if line.strip().startswith("url :"):
-                url = line.split(":", 1)[1].strip()
-                if url.startswith("http"):
-                    return url
+            # Look for pattern: url (spaces) : (spaces) http...
+            match = re.search(r"url\s*:\s*(https?://\S+)", line, re.IGNORECASE)
+            if match:
+                return match.group(1)
         return None
