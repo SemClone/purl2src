@@ -92,4 +92,4 @@ purl2src "pkg:generic/mypackage@1.0.0?download_url=https://example.com/pkg.tar.g
 
 ## License
 
-Apache License 2.0 - see LICENSE file for details
+Apache License 2.0 - see [LICENSE](LICENSE) file for details
