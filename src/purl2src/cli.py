@@ -71,16 +71,18 @@ def main(
     errors = 0
 
     # Only show progress bar for multiple PURLs in verbose mode
+    from typing import Union, Iterator
+    purl_iter: Union[List[str], Iterator[str]]
     if len(purls) > 1 and verbose:
-        purl_list = click.progressbar(
+        purl_iter = click.progressbar(
             purls,
             label="Processing PURLs",
             show_pos=True,
         )
     else:
-        purl_list = purls
+        purl_iter = purls
 
-    for purl_str in purl_list:
+    for purl_str in purl_iter:
         try:
             result = get_download_url(purl_str, validate=validate)
             results.append(result.to_dict())

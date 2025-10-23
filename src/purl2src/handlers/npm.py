@@ -59,7 +59,8 @@ class NpmHandler(BaseHandler):
                     return None
 
             # Extract tarball URL
-            return version_data.get("dist", {}).get("tarball")
+            result: Optional[str] = version_data.get("dist", {}).get("tarball")
+            return result
 
         except Exception:
             return None

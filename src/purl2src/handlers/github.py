@@ -50,7 +50,8 @@ class GitHubHandler(BaseHandler):
                 data = self.http_client.get_json(api_url)
                 # Look for source code archive
                 if "tarball_url" in data:
-                    return data["tarball_url"]
+                    result: Optional[str] = data["tarball_url"]
+                    return result
             except Exception:
                 pass
 

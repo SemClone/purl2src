@@ -157,6 +157,7 @@ class TestCondaHandler:
             assert self.handler.is_package_manager_available() is True
 
             # Test none available
+            mock_which.side_effect = None
             mock_which.return_value = None
             assert self.handler.is_package_manager_available() is False
 

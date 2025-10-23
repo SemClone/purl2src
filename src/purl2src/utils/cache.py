@@ -26,7 +26,7 @@ class URLCache:
         self.ttl = ttl
 
         # In-memory LRU cache for faster access
-        self._memory_cache = {}
+        self._memory_cache: Dict[str, Dict[str, Any]] = {}
 
     def _get_cache_path(self, purl: str) -> Path:
         """Get cache file path for a PURL."""
@@ -50,7 +50,8 @@ class URLCache:
         if purl in self._memory_cache:
             entry = self._memory_cache[purl]
             if time.time() - entry["timestamp"] < self.ttl:
-                return entry["data"]
+                data: Optional[Dict[str, Any]] = entry["data"]
+                return data
 
         # Check file cache
         cache_path = self._get_cache_path(purl)
@@ -68,7 +69,8 @@ class URLCache:
 
             # Update memory cache
             self._memory_cache[purl] = entry
-            return entry["data"]
+            cache_data: Optional[Dict[str, Any]] = entry["data"]
+            return cache_data
 
         except (json.JSONDecodeError, KeyError, IOError):
             # Invalid cache entry, remove it

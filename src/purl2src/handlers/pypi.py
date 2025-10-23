@@ -51,13 +51,15 @@ class PyPiHandler(BaseHandler):
                 if release.get("packagetype") == "sdist":
                     url = release.get("url")
                     if url and url.endswith(".tar.gz"):
-                        return url
+                        result: Optional[str] = url
+                        return result
 
             # Fallback to any tar.gz
             for release in releases:
                 url = release.get("url")
                 if url and url.endswith(".tar.gz"):
-                    return url
+                    fallback_url: Optional[str] = url
+                    return fallback_url
 
             return None
 

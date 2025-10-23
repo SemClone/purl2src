@@ -27,12 +27,12 @@ class HttpClient:
         # Set default headers
         self.session.headers.update({"User-Agent": "semantic-copycat-purl2src/0.1.0"})
 
-    def get(self, url: str, **kwargs) -> requests.Response:
+    def get(self, url: str, **kwargs: Any) -> requests.Response:
         """Perform GET request."""
         kwargs.setdefault("timeout", self.timeout)
         return self.session.get(url, **kwargs)
 
-    def head(self, url: str, **kwargs) -> requests.Response:
+    def head(self, url: str, **kwargs: Any) -> requests.Response:
         """Perform HEAD request."""
         kwargs.setdefault("timeout", self.timeout)
         return self.session.head(url, **kwargs)
@@ -95,7 +95,7 @@ class HttpClient:
 
         return content
 
-    def get_json(self, url: str, **kwargs) -> Dict[str, Any]:
+    def get_json(self, url: str, **kwargs: Any) -> Dict[str, Any]:
         """
         Get JSON response from URL.
 
@@ -112,14 +112,15 @@ class HttpClient:
         """
         response = self.get(url, **kwargs)
         response.raise_for_status()
-        return response.json()
+        result: Dict[str, Any] = response.json()
+        return result
 
-    def close(self):
+    def close(self) -> None:
         """Close the session."""
         self.session.close()
 
-    def __enter__(self):
+    def __enter__(self) -> "HttpClient":
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         self.close()
