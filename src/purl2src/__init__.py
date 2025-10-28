@@ -11,7 +11,7 @@ from .handlers import get_download_url
 try:
     from importlib.metadata import version
 
-    __version__ = version("semantic-copycat-purl2src")
+    __version__ = version("purl2src")
 except Exception:
     # Fallback for development installations
     __version__ = "0.0.0+unknown"

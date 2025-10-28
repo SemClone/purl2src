@@ -30,7 +30,7 @@ class TestHttpClient:
         assert isinstance(client.session, requests.Session)
 
         # Check User-Agent header
-        assert "semantic-copycat-purl2src" in client.session.headers["User-Agent"]
+        assert "purl2src" in client.session.headers["User-Agent"]
 
     def test_client_initialization_custom_params(self):
         """Test client initialization with custom parameters."""
@@ -370,7 +370,7 @@ class TestHttpClient:
     def test_user_agent_header(self):
         """Test that User-Agent header is set correctly."""
         user_agent = self.client.session.headers.get("User-Agent")
-        assert "semantic-copycat-purl2src" in user_agent
+        assert "purl2src" in user_agent
 
     @patch("requests.Session.get")
     def test_download_empty_content(self, mock_get):
