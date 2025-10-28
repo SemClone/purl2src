@@ -25,7 +25,7 @@ class HttpClient:
         self.session.mount("https://", adapter)
 
         # Set default headers
-        self.session.headers.update({"User-Agent": "semantic-copycat-purl2src/0.1.0"})
+        self.session.headers.update({"User-Agent": "purl2src/0.1.0"})
 
     def get(self, url: str, **kwargs: Any) -> requests.Response:
         """Perform GET request."""

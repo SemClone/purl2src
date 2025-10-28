@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "semantic-copycat-purl2src"
-version = "1.2.2"
+name = "purl2src"
+version = "1.2.3"
 description = "Translate Package URLs (PURLs) into validated download URLs for source code artifacts"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -46,10 +46,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/oscarvalenzuelab/semantic-copycat-purl2src"
-Documentation = "https://github.com/oscarvalenzuelab/semantic-copycat-purl2src#readme"
-Repository = "https://github.com/oscarvalenzuelab/semantic-copycat-purl2src"
-Issues = "https://github.com/oscarvalenzuelab/semantic-copycat-purl2src/issues"
+Homepage = "https://github.com/SemClone/purl2src"
+Documentation = "https://github.com/SemClone/purl2src#readme"
+Repository = "https://github.com/SemClone/purl2src"
+Issues = "https://github.com/SemClone/purl2src/issues"
 
 [project.scripts]
 purl2src = "purl2src.cli:main"

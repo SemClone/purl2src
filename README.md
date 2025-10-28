@@ -17,7 +17,7 @@ Translate Package URLs (PURLs) into validated download URLs for source code arti
 ## Installation
 
 ```bash
-pip install semantic-copycat-purl2src
+pip install purl2src
 ```
 
 ## Usage

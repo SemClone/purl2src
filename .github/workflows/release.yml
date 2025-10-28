@@ -74,7 +74,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     environment:
       name: pypi
-      url: https://pypi.org/project/semantic-copycat-purl2src/
+      url: https://pypi.org/project/purl2src/
     permissions:
       id-token: write
     steps:
