@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.4] - 2026-03-15
+
+### Security
+- Updated urllib3 from >=2.5.0 to >=2.6.3 to address multiple high-severity vulnerabilities:
+  - CVE-2026-21441: Decompression-bomb safeguards bypassed when following HTTP redirects (streaming API)
+  - CVE-2025-66471: Streaming API improperly handles highly compressed data
+  - CVE-2025-66418: Unbounded number of links in the decompression chain
+
 ## [1.2.3] - 2025-10-27
 
 ### Changed
