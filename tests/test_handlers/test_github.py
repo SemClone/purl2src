@@ -17,8 +17,12 @@ class TestGitHubHandler:
         self.handler = GitHubHandler(self.http_client)
 
     def test_build_download_url_simple_repo(self):
-        """Test building download URL for simple repository."""
-        purl = Purl(ecosystem="github", namespace="rails", name="rails", version="v7.0.0")
+        """Test building download URL for simple repository.
+
+        Versionless: a versioned PURL is answered with an archive of that ref,
+        not the clone URL, which resolves whatever ref you name.
+        """
+        purl = Purl(ecosystem="github", namespace="rails", name="rails")
         url = self.handler.build_download_url(purl)
         assert url == "https://github.com/rails/rails.git"
 
@@ -93,15 +97,19 @@ class TestGitHubHandler:
 
         url = self.handler.get_download_url_from_api(purl)
         # Should fallback to archive URL
-        assert url == "https://github.com/rails/rails/archive/refs/tags/v7.0.0.tar.gz"
+        assert url == "https://github.com/rails/rails/archive/v7.0.0.tar.gz"
 
     def test_get_download_url_from_api_branch_main(self):
-        """Test API method for main branch."""
+        """Test API method for main branch.
+
+        A branch has no entry under refs/tags, so the form this used to assert
+        404s for a branch that is really there.
+        """
         purl = Purl(ecosystem="github", namespace="rails", name="rails", version="main")
 
         url = self.handler.get_download_url_from_api(purl)
         # Should not try releases API for main/master
-        assert url == "https://github.com/rails/rails/archive/refs/tags/main.tar.gz"
+        assert url == "https://github.com/rails/rails/archive/main.tar.gz"
 
         # Verify no API call was made
         self.http_client.get_json.assert_not_called()
@@ -112,7 +120,7 @@ class TestGitHubHandler:
 
         url = self.handler.get_download_url_from_api(purl)
         # Should not try releases API for main/master
-        assert url == "https://github.com/rails/rails/archive/refs/tags/master.tar.gz"
+        assert url == "https://github.com/rails/rails/archive/master.tar.gz"
 
         # Verify no API call was made
         self.http_client.get_json.assert_not_called()
@@ -193,11 +201,57 @@ class TestGitHubHandler:
 
         url = self.handler.get_download_url_from_api(purl)
         # Should fallback to archive URL
-        assert url == "https://github.com/rails/rails/archive/refs/tags/v7.0.0.tar.gz"
+        assert url == "https://github.com/rails/rails/archive/v7.0.0.tar.gz"
 
     def test_archive_url_format(self):
         """Test that archive URL format is correct."""
         purl = Purl(ecosystem="github", namespace="user", name="repo", version="v1.0.0")
 
         url = self.handler.get_download_url_from_api(purl)
-        assert url == "https://github.com/user/repo/archive/refs/tags/v1.0.0.tar.gz"
+        assert url == "https://github.com/user/repo/archive/v1.0.0.tar.gz"
+
+    def test_versioned_purl_builds_an_archive_not_a_clone_url(self):
+        """A version asked for is answered with an artifact for that version.
+
+        Regression test for #33: the clone URL resolves whatever ref was asked
+        for, so a tag that does not exist was reported as validated.
+        """
+        purl = Purl(ecosystem="github", namespace="rails", name="rails", version="v7.0.0")
+        url = self.handler.build_download_url(purl)
+        assert url == "https://github.com/rails/rails/archive/v7.0.0.tar.gz"
+
+    def test_versionless_purl_still_builds_the_clone_url(self):
+        """With no ref to archive, the repository itself is the honest answer."""
+        purl = Purl(ecosystem="github", namespace="rails", name="rails")
+        url = self.handler.build_download_url(purl)
+        assert url == "https://github.com/rails/rails.git"
+
+    def test_branch_archive_is_not_built_under_refs_tags(self):
+        """A branch is not a tag, and the refs/tags form 404s for one."""
+        purl = Purl(ecosystem="github", namespace="rails", name="rails", version="main")
+        assert self.handler.build_download_url(purl) == (
+            "https://github.com/rails/rails/archive/main.tar.gz"
+        )
+
+    def test_commit_sha_archive_is_built(self):
+        """The plain archive form resolves a commit sha, which refs/tags cannot."""
+        sha = "023767fe9872d0e0e4ba4e1b1b7b2b53f8e2c1a9"
+        purl = Purl(ecosystem="github", namespace="rails", name="rails", version=sha)
+        assert self.handler.build_download_url(purl) == (
+            f"https://github.com/rails/rails/archive/{sha}.tar.gz"
+        )
+
+    def test_missing_tag_fails_rather_than_returning_the_repository(self):
+        """A tag that does not exist reports failure, not a validated clone URL."""
+        purl = Purl(ecosystem="github", namespace="expressjs", name="express", version="v99.99.99")
+
+        self.http_client.get_json.side_effect = Exception("404")
+        # Nothing named v99.99.99 resolves; the bare repo URL would have.
+        self.http_client.validate_url.side_effect = lambda url: "99.99.99" not in url
+
+        with patch("shutil.which", return_value=None):
+            result = self.handler.get_download_url(purl, validate=True)
+
+        assert result.status == "failed"
+        assert result.download_url is None
+        assert result.validated is False

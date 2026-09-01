@@ -10,17 +10,26 @@ from .base import BaseHandler
 class GitHubHandler(BaseHandler):
     """Handler for GitHub repositories."""
 
+    def _archive_url(self, purl: Purl) -> str:
+        """Build the source archive URL for the requested ref.
+
+        The plain ``/archive/{ref}.tar.gz`` form resolves a tag, a branch or a
+        commit sha, and 404s for a ref that does not exist. The ``refs/tags/``
+        form only resolves tags, so it 404s for a branch that is really there.
+        """
+        return f"https://github.com/{purl.namespace}/{purl.name}/" f"archive/{purl.version}.tar.gz"
+
     def build_download_url(self, purl: Purl) -> Optional[str]:
         """
-        Build GitHub repository URL.
+        Build GitHub download URL.
 
-        Returns git URL for cloning.
+        A ref that was asked for is answered with an archive of that ref. The
+        clone URL resolves whatever ref you name, so returning it for a
+        versioned PURL reports a ref that may not exist as validated. With no
+        ref to archive, the repository itself is the honest answer.
         """
         if not purl.namespace:
             return None
-
-        # Base repository URL
-        repo_url = f"https://github.com/{purl.namespace}/{purl.name}.git"
 
         # If subpath is specified, we need the specific file URL
         if purl.subpath:
@@ -31,7 +40,10 @@ class GitHubHandler(BaseHandler):
                 f"{purl.namespace}/{purl.name}/{branch}/{purl.subpath}"
             )
 
-        return repo_url
+        if purl.version:
+            return self._archive_url(purl)
+
+        return f"https://github.com/{purl.namespace}/{purl.name}.git"
 
     def get_download_url_from_api(self, purl: Purl) -> Optional[str]:
         """Query GitHub API for download URL."""
@@ -57,10 +69,7 @@ class GitHubHandler(BaseHandler):
 
         # For branches/tags, return archive URL
         if purl.version:
-            return (
-                f"https://github.com/{purl.namespace}/{purl.name}/"
-                f"archive/refs/tags/{purl.version}.tar.gz"
-            )
+            return self._archive_url(purl)
 
         return None
 

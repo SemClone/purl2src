@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- GitHub: a versioned PURL is answered with an archive of the ref asked for
+  rather than the repository clone URL. The clone URL resolves whatever ref you
+  name, so a tag that does not exist came back `validated=True`, and a consumer
+  handing it to `tarfile.open` extracted zero files without an error (#33).
+- GitHub: the archive URL is built as `/archive/{ref}.tar.gz` rather than
+  `/archive/refs/tags/{ref}.tar.gz`. The old form only resolves tags, so it
+  404'd for a branch that exists, and it cannot resolve a commit sha at all.
+
+### Changed
+- A versioned `pkg:github/*` PURL now returns a `.tar.gz` archive URL where it
+  previously returned a `.git` clone URL. A versionless PURL still returns the
+  clone URL, which is the honest answer when there is no ref to archive.
+
 ## [1.3.0] - 2026-08-31
 
 ### Fixed
