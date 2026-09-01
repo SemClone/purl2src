@@ -27,6 +27,20 @@ class RubyGemsHandler(BaseHandler):
         except Exception:
             return False
 
+    def _names_version(self, url: str, purl: Purl) -> bool:
+        """Check that a gem URL points at the version the caller asked for.
+
+        Only the path is compared. A query string or fragment can be made to end
+        with the requested filename without the URL serving that gem, and a
+        legitimate URL can carry a query that the filename check would otherwise
+        reject.
+        """
+        try:
+            path = urlparse(url).path
+        except Exception:
+            return False
+        return path.rstrip("/").endswith(f"/{purl.name}-{purl.version}.gem")
+
     def build_download_url(self, purl: Purl) -> Optional[str]:
         """
         Build RubyGems download URL.
@@ -48,10 +62,21 @@ class RubyGemsHandler(BaseHandler):
             # Check various URL fields
             # Priority: gem_uri, source_code_uri (if github), homepage_uri (if github)
 
-            # Direct gem URI
+            # Direct gem URI. This endpoint describes the gem's latest release, so
+            # for a versioned request it names the wrong artifact unless it happens
+            # to name the version asked for.
             if "gem_uri" in data:
-                result: Optional[str] = data["gem_uri"]
+                gem_uri = data["gem_uri"]
+                if purl.version and not self._names_version(gem_uri, purl):
+                    return None
+                result: Optional[str] = gem_uri
                 return result
+
+            # The remaining fields are repository URLs, which say nothing about
+            # which version they would give you. Returning one for a versioned
+            # request reports a resolvable URL for a version that may not exist.
+            if purl.version:
+                return None
 
             # Source code URI if it's GitHub
             if "source_code_uri" in data:

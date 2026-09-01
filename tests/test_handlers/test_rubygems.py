@@ -57,8 +57,12 @@ class TestRubyGemsHandler(unittest.TestCase):
         assert url == "https://rubygems.org/downloads/rails-7.0.0.gem"
 
     def test_get_download_url_from_api_with_safe_github_source(self):
-        """Test API response with safe GitHub source_code_uri."""
-        purl = Purl(ecosystem="gem", name="rails", version="7.0.0")
+        """Test API response with safe GitHub source_code_uri.
+
+        Versionless: a repository URL is only offered when no version was asked
+        for, so that is the case where the GitHub host check applies.
+        """
+        purl = Purl(ecosystem="gem", name="rails")
 
         self.http_client.get_json.return_value = {
             "source_code_uri": "https://github.com/rails/rails"
@@ -68,8 +72,13 @@ class TestRubyGemsHandler(unittest.TestCase):
         assert url == "https://github.com/rails/rails.git"
 
     def test_get_download_url_from_api_with_malicious_source(self):
-        """Test API response with malicious source_code_uri containing github.com substring."""
-        purl = Purl(ecosystem="gem", name="rails", version="7.0.0")
+        """Test API response with malicious source_code_uri containing github.com substring.
+
+        Versionless, so the host check is actually reached: a versioned request
+        declines a repository URL before inspecting its host, which would let
+        this test pass without exercising _is_github_url at all.
+        """
+        purl = Purl(ecosystem="gem", name="rails")
 
         self.http_client.get_json.return_value = {
             "source_code_uri": "https://evil.com/github.com/malicious"
@@ -80,8 +89,11 @@ class TestRubyGemsHandler(unittest.TestCase):
         assert url is None
 
     def test_get_download_url_from_api_with_safe_github_homepage(self):
-        """Test API response with safe GitHub homepage_uri."""
-        purl = Purl(ecosystem="gem", name="rails", version="7.0.0")
+        """Test API response with safe GitHub homepage_uri.
+
+        Versionless, for the same reason as the source_code_uri case above.
+        """
+        purl = Purl(ecosystem="gem", name="rails")
 
         self.http_client.get_json.return_value = {"homepage_uri": "https://github.com/rails/rails"}
 
@@ -89,8 +101,13 @@ class TestRubyGemsHandler(unittest.TestCase):
         assert url == "https://github.com/rails/rails.git"
 
     def test_get_download_url_from_api_with_malicious_homepage(self):
-        """Test API response with malicious homepage_uri containing github.com substring."""
-        purl = Purl(ecosystem="gem", name="rails", version="7.0.0")
+        """Test API response with malicious homepage_uri containing github.com substring.
+
+        Versionless, so the host check is actually reached: a versioned request
+        declines a repository URL before inspecting its host, which would let
+        this test pass without exercising _is_github_url at all.
+        """
+        purl = Purl(ecosystem="gem", name="rails")
 
         self.http_client.get_json.return_value = {
             "homepage_uri": "https://evil.com/github.com/malicious"
@@ -116,3 +133,74 @@ class TestRubyGemsHandler(unittest.TestCase):
         """Test getting package manager command."""
         cmd = self.handler.get_package_manager_cmd()
         assert cmd == ["gem"]
+
+    def test_gem_uri_for_another_version_is_not_returned(self):
+        """The gems endpoint describes the latest release, which is not what was asked for."""
+        purl = Purl(ecosystem="gem", name="rails", version="99.99.99")
+
+        self.http_client.get_json.return_value = {
+            "gem_uri": "https://rubygems.org/gems/rails-8.1.3.1.gem",
+            "source_code_uri": "https://github.com/rails/rails",
+        }
+
+        assert self.handler.get_download_url_from_api(purl) is None
+
+    def test_repository_url_is_not_an_answer_about_a_version(self):
+        """A bare clone URL says nothing about the requested version, so it is not returned."""
+        purl = Purl(ecosystem="gem", name="rails", version="7.0.0")
+
+        self.http_client.get_json.return_value = {
+            "homepage_uri": "https://github.com/rails/rails",
+        }
+
+        assert self.handler.get_download_url_from_api(purl) is None
+
+    def test_missing_version_fails_rather_than_validating_another_version(self):
+        """The resolution chain reports failure for a gem version that does not exist.
+
+        Companion to the npm case in #30: the versioned .gem URL 404s, and the API
+        level used to answer with the latest gem, which validates.
+        """
+        purl = Purl(ecosystem="gem", name="rails", version="99.99.99")
+
+        self.http_client.get_json.return_value = {
+            "gem_uri": "https://rubygems.org/gems/rails-8.1.3.1.gem",
+            "source_code_uri": "https://github.com/rails/rails",
+        }
+        self.http_client.validate_url.side_effect = lambda url: "99.99.99" not in url
+
+        with patch("shutil.which", return_value=None):
+            result = self.handler.get_download_url(purl, validate=True)
+
+        assert result.status == "failed"
+        assert result.download_url is None
+        assert result.validated is False
+
+    def test_query_string_cannot_spoof_the_version(self):
+        """A query ending in the requested filename does not make the URL that gem."""
+        purl = Purl(ecosystem="gem", name="rails", version="7.0.0")
+
+        self.http_client.get_json.return_value = {
+            "gem_uri": "https://rubygems.org/downloads/rails-8.1.3.gem?x=/rails-7.0.0.gem",
+        }
+
+        assert self.handler.get_download_url_from_api(purl) is None
+
+    def test_query_string_does_not_reject_the_right_version(self):
+        """A signed or tracked URL for the requested version is still accepted."""
+        purl = Purl(ecosystem="gem", name="rails", version="7.0.0")
+        gem_uri = "https://rubygems.org/downloads/rails-7.0.0.gem?token=abc123"
+
+        self.http_client.get_json.return_value = {"gem_uri": gem_uri}
+
+        assert self.handler.get_download_url_from_api(purl) == gem_uri
+
+    def test_fragment_cannot_spoof_the_version(self):
+        """A fragment ending in the requested filename is likewise not the gem."""
+        purl = Purl(ecosystem="gem", name="rails", version="7.0.0")
+
+        self.http_client.get_json.return_value = {
+            "gem_uri": "https://rubygems.org/downloads/rails-8.1.3.gem#/rails-7.0.0.gem",
+        }
+
+        assert self.handler.get_download_url_from_api(purl) is None

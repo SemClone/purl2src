@@ -47,16 +47,22 @@ class NpmHandler(BaseHandler):
         try:
             data = self.http_client.get_json(api_url)
 
-            # Get specific version or latest
-            if purl.version and purl.version in data.get("versions", {}):
-                version_data = data["versions"][purl.version]
-            else:
-                # Fallback to latest if version not found
-                latest = data.get("dist-tags", {}).get("latest")
-                if latest and latest in data.get("versions", {}):
-                    version_data = data["versions"][latest]
-                else:
+            versions = data.get("versions", {})
+
+            if purl.version:
+                # The registry not carrying the requested version means there is
+                # no answer. Substituting another release returns different
+                # software under the coordinate the caller asked about, and the
+                # substituted URL resolves, so it would be reported as validated.
+                if purl.version not in versions:
                     return None
+                version_data = versions[purl.version]
+            else:
+                # No version was requested, so latest answers the question posed.
+                latest = data.get("dist-tags", {}).get("latest")
+                if not latest or latest not in versions:
+                    return None
+                version_data = versions[latest]
 
             # Extract tarball URL
             result: Optional[str] = version_data.get("dist", {}).get("tarball")
