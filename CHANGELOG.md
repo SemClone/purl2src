@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- npm: a version the registry does not carry no longer resolves to the latest
+  release. The API level fell back to `dist-tags.latest`, whose tarball URL
+  resolves, so the substitution was reported as `validated=True` under the
+  requested coordinate (#30).
+- RubyGems: the same substitution via the gems endpoint, which describes the
+  gem's latest release. A `gem_uri` is now returned only when it names the
+  requested version, and the repository URLs in `source_code_uri` /
+  `homepage_uri` are offered only when no version was requested, since a clone
+  URL says nothing about which version it would give you.
+
 ## [1.2.4] - 2026-03-15
 
 ### Security

@@ -82,3 +82,61 @@ class TestNpmHandler:
         output = "Not a URL"
         url = self.handler.parse_fallback_output(output)
         assert url is None
+
+    def test_get_download_url_from_api_missing_version_is_not_substituted(self):
+        """A version the registry does not carry resolves to nothing, not to latest."""
+        purl = Purl(ecosystem="npm", name="express", version="99.99.99")
+
+        self.http_client.get_json.return_value = {
+            "dist-tags": {"latest": "5.2.1"},
+            "versions": {
+                "5.2.1": {
+                    "dist": {"tarball": "https://registry.npmjs.org/express/-/express-5.2.1.tgz"}
+                }
+            },
+        }
+
+        assert self.handler.get_download_url_from_api(purl) is None
+
+    def test_get_download_url_from_api_without_version_uses_latest(self):
+        """With no version asked for, latest is the answer to the question posed."""
+        purl = Purl(ecosystem="npm", name="express")
+
+        self.http_client.get_json.return_value = {
+            "dist-tags": {"latest": "5.2.1"},
+            "versions": {
+                "5.2.1": {
+                    "dist": {"tarball": "https://registry.npmjs.org/express/-/express-5.2.1.tgz"}
+                }
+            },
+        }
+
+        url = self.handler.get_download_url_from_api(purl)
+        assert url == "https://registry.npmjs.org/express/-/express-5.2.1.tgz"
+
+    def test_missing_version_fails_rather_than_validating_another_version(self):
+        """The whole resolution chain reports failure for a version that does not exist.
+
+        Regression test for #30: the direct URL 404s, and the API level used to
+        answer with the latest tarball, which validates and so was reported as a
+        validated result for a coordinate the registry never had.
+        """
+        purl = Purl(ecosystem="npm", name="express", version="99.99.99")
+
+        self.http_client.get_json.return_value = {
+            "dist-tags": {"latest": "5.2.1"},
+            "versions": {
+                "5.2.1": {
+                    "dist": {"tarball": "https://registry.npmjs.org/express/-/express-5.2.1.tgz"}
+                }
+            },
+        }
+        # Only the real 5.2.1 tarball resolves; the 99.99.99 URL 404s.
+        self.http_client.validate_url.side_effect = lambda url: "5.2.1" in url
+
+        with patch("shutil.which", return_value=None):
+            result = self.handler.get_download_url(purl, validate=True)
+
+        assert result.status == "failed"
+        assert result.download_url is None
+        assert result.validated is False
