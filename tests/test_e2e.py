@@ -74,8 +74,8 @@ class TestE2E:
         result = get_download_url("pkg:github/facebook/react@v18.2.0")
         assert result.download_url is not None
         assert "github.com/facebook/react" in result.download_url
-        # GitHub handler returns git URL
-        assert result.download_url == "https://github.com/facebook/react.git"
+        # A ref that was asked for is answered with an archive of that ref
+        assert result.download_url == "https://github.com/facebook/react/archive/v18.2.0.tar.gz"
 
     def test_conda_package(self):
         """Verify Conda package resolves correctly (if qualifiers provided)."""
